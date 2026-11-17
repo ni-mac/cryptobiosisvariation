@@ -1,0 +1,7 @@
+Strain,Species,reproduction,Sampling_location,Treatment,Replicate,TR1,TR2,TR3,Alive_sum,Total_counted,Dead_sum,Alive_mean_per_100,Survival_percent,Source_note
+860.22.04,Panagrolaimus shuimeiren,unknown,Namibia,Acclimated,R1,72,74,74,220,300,80,73.3333333333,73.3333333333,Three technical counts from one biological plate
+860.22.04,Panagrolaimus shuimeiren,unknown,Namibia,Acclimated,R2,70,72,72,214,300,86,71.3333333333,71.3333333333,Three technical counts from one biological plate
+860.22.04,Panagrolaimus shuimeiren,unknown,Namibia,Acclimated,R3,71,70,71,212,300,88,70.6666666667,70.6666666667,Values supplied by Karim on 2026-09-29; three technical counts from one biological plate
+860.22.04,Panagrolaimus shuimeiren,unknown,Namibia,Non_acclimated,R1,45,40,54,139,300,161,46.3333333333,46.3333333333,Three technical counts from one biological plate
+860.22.04,Panagrolaimus shuimeiren,unknown,Namibia,Non_acclimated,R2,19,17,17,53,300,247,17.6666666667,17.6666666667,Three technical counts from one biological plate
+860.22.04,Panagrolaimus shuimeiren,unknown,Namibia,Non_acclimated,R3,16,24,23,63,300,237,21,21,Three technical counts from one biological plate

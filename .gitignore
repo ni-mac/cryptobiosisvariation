@@ -1,0 +1,9 @@
+/Results/
+/Manuscript/
+/.tmp/
+/Verification/*
+!/Verification/package_versions.csv
+!/Verification/sessionInfo.txt
+.Rhistory
+.RData
+Rplots.pdf
