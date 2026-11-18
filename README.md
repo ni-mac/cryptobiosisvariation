@@ -14,9 +14,8 @@ The scripts write model results and tables to `Results/` and figures to `Manuscr
 
 ## Data sources
 
-- `Data/raw/` contains original experimental source files. Some original files retain historical labels. In the manuscript, ARO.22.05 is *Acrobeloides goughiensis* WWL726, and the cooler ES5 treatment is 16 °C.
-- `Data/curation/Cryptobiosis_master_final.xlsx` is the curated workbook used as an analysis input. The pipeline starts from this workbook and does not reconstruct it from the raw files. The cultivation analysis also reads original plate logs. Desiccation analyses read D1 and D2 inputs directly.
-- `Data/curation/salinity/recorded_ec50_bootstrap_draws.csv` contains the saved draws used by the default run to reproduce the reported EC50 confidence intervals.
+- `Data/raw/` contains original experimental source files. Analyses use the curated workbook `Data/curation/Cryptobiosis_master_final.xlsx` together with original cultivation and desiccation files.
+- `Data/curation/salinity/recorded_ec50_bootstrap_draws.csv` contains the saved bootstrap results used to reproduce the reported EC50 confidence intervals.
 
 ## Tested package versions
 
