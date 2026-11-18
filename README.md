@@ -4,7 +4,7 @@ Data and R scripts for the salinity dose-response, recovery, long-term cultivati
 
 ## Run the analyses
 
-The analysis was tested with R 4.5.1 on Windows 11. Install the packages listed below. From the repository root, run:
+The analysis was tested with R 4.5.1 on Windows 11. Install the packages listed below. From the repository root open a terminal and run:
 
 ```sh
 Rscript R/00_run_all.R
