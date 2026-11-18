@@ -28,14 +28,14 @@ protocol_map <- tibble::tribble(
   "PAP.22.17_salinity_R2", "autoclaved_H2O_after_t7", "confirmed", "supporting", NA_integer_, NA_integer_,
   "ARO.22.05_salinity_R1", "autoclaved_H2O_after_t4", "confirmed", "supporting", NA_integer_, NA_integer_,
   "ES5_salinity_R1", "autoclaved_H2O_after_t11", "confirmed_results_not_good", "supporting", 2022L, 2023L,
-  "A.max_22C", "M9_after_t14", "confirmed", "primary_Mira", NA_integer_, NA_integer_,
-  "ALT.22.08_16C", "M9_after_t14", "confirmed", "primary_Mira", NA_integer_, NA_integer_,
-  "ALT.22.08_22C", "M9_after_t14", "confirmed", "primary_Mira", NA_integer_, NA_integer_,
-  "ES5_22C", "M9_after_t14", "confirmed", "primary_Mira", NA_integer_, NA_integer_,
-  "PAP.22.17_16C", "M9_after_t14", "confirmed", "primary_Mira", NA_integer_, NA_integer_,
-  "Thomas_ALT.22.08_salinity_22C", "counted_not_rehydrated", "confirmed", "supporting", 2023L, NA_integer_,
-  "Thomas_LAG.22.03_salinity_22C", "counted_not_rehydrated", "confirmed", "supporting", 2023L, NA_integer_,
-  "Thomas_A.max_salinity_22C", "counted_not_rehydrated", "confirmed", "supporting", 2023L, NA_integer_
+  "A.max_22C", "M9_after_t14", "confirmed", "primary_salinity_recovery", NA_integer_, NA_integer_,
+  "ALT.22.08_16C", "M9_after_t14", "confirmed", "primary_salinity_recovery", NA_integer_, NA_integer_,
+  "ALT.22.08_22C", "M9_after_t14", "confirmed", "primary_salinity_recovery", NA_integer_, NA_integer_,
+  "ES5_22C", "M9_after_t14", "confirmed", "primary_salinity_recovery", NA_integer_, NA_integer_,
+  "PAP.22.17_16C", "M9_after_t14", "confirmed", "primary_salinity_recovery", NA_integer_, NA_integer_,
+  "series2023_ALT.22.08_salinity_22C", "counted_not_rehydrated", "confirmed", "supporting", 2023L, NA_integer_,
+  "series2023_LAG.22.03_salinity_22C", "counted_not_rehydrated", "confirmed", "supporting", 2023L, NA_integer_,
+  "series2023_A.max_salinity_22C", "counted_not_rehydrated", "confirmed", "supporting", 2023L, NA_integer_
 )
 
 expected_experiments <- protocol_map$Experiment_id
@@ -92,9 +92,9 @@ sal$Temperature_treatment[sal$Experiment_id == "ES5_salinity_R1"] <- 16
 
 # Fail fast if the confirmed metadata are not represented in the final master.
 series_2023_ids <- c(
-  "Thomas_ALT.22.08_salinity_22C",
-  "Thomas_LAG.22.03_salinity_22C",
-  "Thomas_A.max_salinity_22C"
+  "series2023_ALT.22.08_salinity_22C",
+  "series2023_LAG.22.03_salinity_22C",
+  "series2023_A.max_salinity_22C"
 )
 series_2023 <- sal %>% filter(Experiment_id %in% series_2023_ids)
 if (!all(series_2023_ids %in% unique(series_2023$Experiment_id))) stop("One or more confirmed 2023 salinity series are absent.")
@@ -104,9 +104,9 @@ series_2023_design <- series_2023 %>% group_by(Experiment_id) %>%
 if (!all(series_2023_design$max_psu == 40 & series_2023_design$includes_25_psu)) {
   stop("Confirmed 2023 series must extend to 40 PSU and include 25 PSU.")
 }
-jonas_es5 <- sal %>% filter(Experiment_id == "ES5_salinity_R1")
-if (!nrow(jonas_es5) || !all(jonas_es5$Temperature_treatment == 16)) stop("ES5_salinity_R1 must be recorded at 16°C.")
-if (!all(jonas_es5$experiment_year == 2022L & jonas_es5$protocol_writeup_year == 2023L)) {
+supporting_es5 <- sal %>% filter(Experiment_id == "ES5_salinity_R1")
+if (!nrow(supporting_es5) || !all(supporting_es5$Temperature_treatment == 16)) stop("ES5_salinity_R1 must be recorded at 16°C.")
+if (!all(supporting_es5$experiment_year == 2022L & supporting_es5$protocol_writeup_year == 2023L)) {
   stop("ES5_salinity_R1 must be mapped to experiment year 2022 and protocol/write-up year 2023.")
 }
 lag_rows <- sal %>% filter(Strain == "LAG.22.03")
@@ -121,15 +121,15 @@ metadata_validation <- bind_rows(
 write.csv(metadata_validation, file.path(here, "metadata_validation.csv"), row.names = FALSE, na = "")
 
 # Preserve source counts and use the endpoint prepared for analysis in each
-# source workbook. For Mira's A. maximus, ALT.22.08 and PAP.22.17 sheets this
+# source workbook. For salinity_recovery's A. maximus, ALT.22.08 and PAP.22.17 sheets this
 # is Dead_with_paralysed, stored as Dead in Core_master and explicitly named
 # in Mortality_definition. This is an operational, not confirmed, mortality endpoint.
 sal$Analysis_dead <- sal$Dead
 sal$Analysis_not_dead <- sal$Total - sal$Analysis_dead
 sal$Analysis_endpoint_definition <- sal$Mortality_definition
 
-# Dose-response days documented in Mira's thesis and prepared *_for_R sheets.
-mira_analysis_days <- list(
+# Dose-response days documented in salinity_recovery's thesis and prepared *_for_R sheets.
+salinity_recovery_analysis_days <- list(
   "A.max_22C" = c(4, 7),
   "ALT.22.08_16C" = c(4, 7, 9),
   "ALT.22.08_22C" = c(4, 7, 9),
@@ -137,7 +137,7 @@ mira_analysis_days <- list(
   "PAP.22.17_16C" = c(4, 7, 9)
 )
 day_eligible <- vapply(seq_len(nrow(sal)), function(i) {
-  allowed <- mira_analysis_days[[sal$Experiment_id[i]]]
+  allowed <- salinity_recovery_analysis_days[[sal$Experiment_id[i]]]
   is.null(allowed) || sal$Observation_day_raw[i] %in% allowed
 }, logical(1))
 
@@ -266,15 +266,15 @@ all_time <- out[, setdiff(names(out),c("reproductive_mode","sampling_location"))
 all_time <- all_time[order(all_time$strain, all_time$experimental_block,
                           all_time$exposure_day,all_time$salinity_PSU,all_time$replicate),]
 
-is_thomas <- startsWith(all_time$experimental_block, "Thomas_")
+is_series2023 <- startsWith(all_time$experimental_block, "series2023_")
 all_time <- all_time %>%
   mutate(
     dead_inactive_n = effect_n,
-    dead_inactive_n = if_else(is_thomas,
+    dead_inactive_n = if_else(is_series2023,
                               effect_n + coalesce(as.numeric(dormant_n), 0),
                               dead_inactive_n),
     active_n = total_n - dead_inactive_n,
-    analysis_endpoint = if_else(is_thomas,
+    analysis_endpoint = if_else(is_series2023,
                                 "confirmed dead + recorded dormant",
                                 "source-defined dead/inactive"),
     analysis_endpoint = if_else(endpoint_class == "immobile_or_missing_classified_as_dead",
@@ -305,8 +305,8 @@ x <- x %>% mutate(
   Observation_day_raw = num(Observation_day_raw),
   salinity = num(`Salinity [PSU]`),
   definition = coalesce(Analysis_endpoint_definition, ""),
-  thomas = startsWith(Experiment_id, "Thomas_"),
-  dead_inactive_n = if_else(thomas, Analysis_dead + Dormant_stage, Analysis_dead),
+  series2023 = startsWith(Experiment_id, "series2023_"),
+  dead_inactive_n = if_else(series2023, Analysis_dead + Dormant_stage, Analysis_dead),
   confirmed_dead_n = if_else(Dead_without_dormant >= 0, Dead_without_dormant, NA_real_)
 )
 uses_paralysed <- grepl("paralysed individuals are counted as dead|Dead_with_paralysed",
@@ -316,7 +316,7 @@ idx <- uses_paralysed & is.na(x$confirmed_dead_n)
 x$confirmed_dead_n[idx] <- x$Analysis_dead[idx] - x$Paralysed_adult[idx]
 idx <- corrected & is.na(x$confirmed_dead_n)
 x$confirmed_dead_n[idx] <- x$Analysis_dead[idx] - x$Dormant_stage[idx]
-idx <- x$thomas & is.na(x$confirmed_dead_n)
+idx <- x$series2023 & is.na(x$confirmed_dead_n)
 x$confirmed_dead_n[idx] <- x$Analysis_dead[idx]
 if (anyNA(x$confirmed_dead_n)) stop("Confirmed deaths could not be reconstructed in R.")
 x <- x %>% mutate(
@@ -796,7 +796,7 @@ composition <- data.frame(F=adjusted_test$F[2],df1=adjusted_test$Df[2],
 write.csv(composition,file.path(stats,"day4_dead_vs_inactive_global_interaction.csv"),row.names=FALSE)
 
 m9_ids <- c("A.max_22C", "ALT.22.08_16C", "ALT.22.08_22C", "PAP.22.17_16C")
-m9_raw <- read_excel(source_file, sheet = "Mira_raw_full", guess_max = 1000) %>%
+m9_raw <- read_excel(source_file, sheet = "salinity_recovery_raw_full", guess_max = 1000) %>%
   mutate(
     Day = suppressWarnings(as.numeric(Day)),
     salinity_PSU = suppressWarnings(as.numeric(sub("^([0-9.]+).*", "\\1", as.character(Treatment)))),

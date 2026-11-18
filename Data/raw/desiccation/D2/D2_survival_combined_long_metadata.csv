@@ -1,0 +1,37 @@
+Strain,Species,reproduction,Sampling location,Treatment,Replicate,Alive,Total,Dead,Survival_percent
+ALT2208,Panagrolaimus sp.,asexual,"Altiplano, Chile",Acclimated,R1,29,75,46,38.67
+ALT2208,Panagrolaimus sp.,asexual,"Altiplano, Chile",Acclimated,R2,90,100,10,90
+ALT2208,Panagrolaimus sp.,asexual,"Altiplano, Chile",Acclimated,R3,94,100,6,94
+ES5 (P. einhardi),Panagrolaimus einhardi,sexual,"Bornheim, Bonn, Germany",Acclimated,R1,16,57,41,28.07
+ES5 (P. einhardi),Panagrolaimus einhardi,sexual,"Bornheim, Bonn, Germany",Acclimated,R2,200,450,250,44.44
+ES5 (P. einhardi),Panagrolaimus einhardi,sexual,"Bornheim, Bonn, Germany",Acclimated,R3,187,380,193,49.21
+JU1365,Panagrolaimus sp.,sexual,"Periyar-Madurai, Tamil Nadu, India",Acclimated,R1,33,213,180,15.49
+JU1365,Panagrolaimus sp.,sexual,"Periyar-Madurai, Tamil Nadu, India",Acclimated,R2,18,100,82,18
+JU1365,Panagrolaimus sp.,sexual,"Periyar-Madurai, Tamil Nadu, India",Acclimated,R3,33,101,68,32.67
+PAP2229,Panagrolaimus nebliphilus / superbus?,sexual,"Paposo, Chile",Acclimated,R1,37,100,63,37
+PAP2229,Panagrolaimus nebliphilus / superbus?,sexual,"Paposo, Chile",Acclimated,R2,105,260,155,40.38
+PAP2229,Panagrolaimus nebliphilus / superbus?,sexual,"Paposo, Chile",Acclimated,R3,92,120,28,76.67
+PS1159,Panagrolaimus sp.,asexual,"Durham, NC",Acclimated,R1,120,163,43,73.62
+PS1159,Panagrolaimus sp.,asexual,"Durham, NC",Acclimated,R2,105,250,145,42
+PS1159,Panagrolaimus sp.,asexual,"Durham, NC",Acclimated,R3,40,111,71,36.04
+QG3759,Panagrolaimus sp.,sexual - not verified,Chornobyl Exclusion Zone,Acclimated,R1,84,100,16,84
+QG3759,Panagrolaimus sp.,sexual - not verified,Chornobyl Exclusion Zone,Acclimated,R2,84,100,16,84
+QG3759,Panagrolaimus sp.,sexual - not verified,Chornobyl Exclusion Zone,Acclimated,R3,75,100,25,75
+ALT2208,Panagrolaimus sp.,asexual,"Altiplano, Chile",Non_acclimated,R1,77,100,23,77
+ALT2208,Panagrolaimus sp.,asexual,"Altiplano, Chile",Non_acclimated,R2,29,100,71,29
+ALT2208,Panagrolaimus sp.,asexual,"Altiplano, Chile",Non_acclimated,R3,41,100,59,41
+ES5 (P. einhardi),Panagrolaimus einhardi,sexual,"Bornheim, Bonn, Germany",Non_acclimated,R1,20,35,15,57.14
+ES5 (P. einhardi),Panagrolaimus einhardi,sexual,"Bornheim, Bonn, Germany",Non_acclimated,R2,168,350,182,48
+ES5 (P. einhardi),Panagrolaimus einhardi,sexual,"Bornheim, Bonn, Germany",Non_acclimated,R3,258,380,122,67.89
+JU1365,Panagrolaimus sp.,sexual,"Periyar-Madurai, Tamil Nadu, India",Non_acclimated,R1,12,137,125,8.76
+JU1365,Panagrolaimus sp.,sexual,"Periyar-Madurai, Tamil Nadu, India",Non_acclimated,R2,0,100,100,0
+JU1365,Panagrolaimus sp.,sexual,"Periyar-Madurai, Tamil Nadu, India",Non_acclimated,R3,0,100,100,0
+PAP2229,Panagrolaimus nebliphilus / superbus?,sexual,"Paposo, Chile",Non_acclimated,R1,21,100,79,21
+PAP2229,Panagrolaimus nebliphilus / superbus?,sexual,"Paposo, Chile",Non_acclimated,R2,34,100,66,34
+PAP2229,Panagrolaimus nebliphilus / superbus?,sexual,"Paposo, Chile",Non_acclimated,R3,8,50,42,16
+PS1159,Panagrolaimus sp.,asexual,"Durham, NC",Non_acclimated,R1,56,101,45,55.45
+PS1159,Panagrolaimus sp.,asexual,"Durham, NC",Non_acclimated,R2,132,250,118,52.8
+PS1159,Panagrolaimus sp.,asexual,"Durham, NC",Non_acclimated,R3,25,146,121,17.12
+QG3759,Panagrolaimus sp.,sexual - not verified,Chernobyl Exclusion Zone,Non_acclimated,R1,16,50,34,32
+QG3759,Panagrolaimus sp.,sexual - not verified,Chernobyl Exclusion Zone,Non_acclimated,R2,16,50,34,32
+QG3759,Panagrolaimus sp.,sexual - not verified,Chernobyl Exclusion Zone,Non_acclimated,R3,37,100,63,37

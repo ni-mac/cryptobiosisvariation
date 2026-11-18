@@ -4,9 +4,9 @@
 
 ## Inputs read by the scripts
 
-- Salinity, recovery and cultivation observations come from `curation/Cryptobiosis_master_final.xlsx`, using `Core_master`, `Mira_raw_full` and `MAL_daily_long`, respectively.
+- Salinity, recovery and cultivation observations come from `curation/Cryptobiosis_master_final.xlsx`, using `Core_master`, `salinity_recovery_raw_full` and `MAL_daily_long`, respectively.
 - Cultivation plate dates are read from the three original Excel workbooks ending in `20251023.xlsx` under `raw/cultivation/`.
-- D1 counts come from `raw/desiccation/D1/Rena_anhydrobiosis.xlsx`.
+- D1 counts come from `raw/desiccation/D1/D1_anhydrobiosis.xlsx`.
 - D2 counts come from the combined metadata CSV and the P. shuimeiren technical-count CSV under `raw/desiccation/D2/`.
 - The default EC50 confidence intervals use the recorded bootstrap draws under `curation/salinity/`.
 

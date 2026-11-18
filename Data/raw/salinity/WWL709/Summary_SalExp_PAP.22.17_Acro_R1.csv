@@ -1,4 +1,4 @@
-﻿Strain;Day;Treatment;Replicate;Dead;Alive;Eggs;Juveniles;Dormant_stage;Mortality_perc;Survival_perc;Consistency_counting_Dead_Alive
+Strain;Day;Treatment;Replicate;Dead;Alive;Eggs;Juveniles;Dormant_stage;Mortality_perc;Survival_perc;Consistency_counting_Dead_Alive
 PAP.22.17;1;0;1;1;19;yes;no;0;5;95;NA
 PAP.22.17;1;0;2;9;11;yes;no;0;45;55;NA
 PAP.22.17;1;0;3;0;20;yes;no;0;0;100;NA

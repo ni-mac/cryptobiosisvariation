@@ -1,4 +1,4 @@
-﻿Day;Treatment;Replicate;Dead;Alive;Eggs;Juveniles;Dormant_stage;Mortality_perc;Survival_perc;Consistency_counting_Dead_Alive
+Day;Treatment;Replicate;Dead;Alive;Eggs;Juveniles;Dormant_stage;Mortality_perc;Survival_perc;Consistency_counting_Dead_Alive
 1;0;1;1;19;yes;no;0;5;95;
 1;0;2;0;20;yes;no;0;0;100;
 1;0;3;2;18;yes;no;0;10;90;

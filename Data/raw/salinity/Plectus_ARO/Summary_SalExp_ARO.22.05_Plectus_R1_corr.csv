@@ -1,4 +1,4 @@
-﻿Strain;Day;Treatment;Replicate;Dead;Alive;Eggs;Juveniles;Dormant_stage?;Revived_after_t4;Mortality_perc;Survival_perc;Consistency_counting_Dead_Alive
+Strain;Day;Treatment;Replicate;Dead;Alive;Eggs;Juveniles;Dormant_stage?;Revived_after_t4;Mortality_perc;Survival_perc;Consistency_counting_Dead_Alive
 ARO.22.05;1;0;1;3;17;yes;no;0;NA;15;85;NA
 ARO.22.05;1;0;2;2;18;yes;yes;0;NA;10;90;NA
 ARO.22.05;1;0;3;3;17;yes;no;0;NA;15;85;NA

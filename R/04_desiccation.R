@@ -1,4 +1,4 @@
-# Reproducible desiccation analysis (D1 Rena, D2 Karim); D3 excluded from the current manuscript.
+# Reproducible desiccation analysis (D1 D1, D2 D2); D3 excluded from the current manuscript.
 # Raw observations preserved byte-identically; historical codes are internal model IDs.
 # Bootstrap and original random seed retained for manuscript figure parity.
 run_desiccation <- function(project_root) {
@@ -28,6 +28,8 @@ wilson <- function(x, n) {
 }
 
 summarise_recovery <- function(x) {
+  # Preserve the original bootstrap group order with neutral experiment labels.
+  x$experiment <- factor(x$experiment, levels = c("D2", "D1"))
   ans <- x |>
     group_by(experiment, strain, group) |>
     summarise(
@@ -43,9 +45,9 @@ summarise_recovery <- function(x) {
     group_by(experiment, strain, group) |>
     group_modify(~{
       # The historical group order inserted six D3 groups (five plates each)
-      # between Karim and Rena. Advance RNG only, without reading D3 data,
+      # between D2 and D1. Advance RNG only, without reading D3 data,
       # to retain the accepted D1 bootstrap intervals after D3 removal.
-      if (as.character(.y$experiment) == "Rena" && !historical_rng_gap_consumed) {
+      if (as.character(.y$experiment) == "D1" && !historical_rng_gap_consumed) {
         for (j in seq_len(6L)) replicate(20000L, sample.int(5L, 5L, replace=TRUE))
         historical_rng_gap_consumed <<- TRUE
       }
@@ -58,25 +60,25 @@ summarise_recovery <- function(x) {
   left_join(ans, boot, by = c("experiment", "strain", "group"))
 }
 
-# Rena: five replicate plates per strain and group; no preconditioning.
-rena0 <- read_excel(file.path(raw, "D1", "Rena_anhydrobiosis.xlsx"), sheet = "Nematoden Daten")
-rena <- transmute(
-  rena0,
-  experiment = "Rena", strain = gsub(" ", ".", trimws(Strain), fixed = TRUE),
+# D1: five replicate plates per strain and group; no preconditioning.
+D10 <- read_excel(file.path(raw, "D1", "D1_anhydrobiosis.xlsx"), sheet = "Nematoden Daten")
+D1 <- transmute(
+  D10,
+  experiment = "D1", strain = gsub(" ", ".", trimws(Strain), fixed = TRUE),
   species = trimws(Species), group = if_else(Treatment == "Desiccation", "Desiccation", "Control"),
   replicate = as.integer(Replicate), recovered = as.integer(Alive),
   initial = as.integer(Total), failure = as.integer(Dead), missing = 0L,
   recovery = recovered / initial,
   note = "No preconditioning; 8 h desiccation, 17 h rehydration"
 )
-rena$strain <- recode(rena$strain, `TDT.23.02` = "TDT.23.02", `TDT.23.16` = "TDT.23.16",
+D1$strain <- recode(D1$strain, `TDT.23.02` = "TDT.23.02", `TDT.23.16` = "TDT.23.16",
                       `PAP.22.29` = "PAP.22.29", `PWB.22.01` = "PWB.22.01",
                       `GBG22.06` = "GBG.22.06")
 
-# Karim: same drying/rehydration protocol in both groups; only 96 h preconditioning differs.
-karim0 <- read.csv(file.path(raw, "D2", "Karim_survival_combined_long_metadata.csv"), check.names = FALSE)
+# D2: same drying/rehydration protocol in both groups; only 96 h preconditioning differs.
+D20 <- read.csv(file.path(raw, "D2", "D2_survival_combined_long_metadata.csv"), check.names = FALSE)
 shuimeiren_technical <- read.csv(
-  file.path(raw, "D2", "Karim_P_shuimeiren_technical_counts_2026-09-30.csv"),
+  file.path(raw, "D2", "D2_P_shuimeiren_technical_counts_2026-09-30.csv"),
   check.names = FALSE
 ) |>
   transmute(
@@ -91,10 +93,10 @@ shuimeiren_technical <- read.csv(
     Dead = 100 - Alive_mean_per_100,
     Survival_percent
   )
-karim0 <- bind_rows(karim0, shuimeiren_technical)
-karim <- transmute(
-  karim0,
-  experiment = "Karim", strain = recode(Strain, ALT2208 = "ALT.22.08", PAP2229 = "PAP.22.29",
+D20 <- bind_rows(D20, shuimeiren_technical)
+D2 <- transmute(
+  D20,
+  experiment = "D2", strain = recode(Strain, ALT2208 = "ALT.22.08", PAP2229 = "PAP.22.29",
                                            `ES5 (P. einhardi)` = "ES5"),
   species = Species,
   group = if_else(Treatment == "Acclimated", "Preconditioned", "Not preconditioned"),
@@ -105,7 +107,7 @@ karim <- transmute(
 )
 
 # D3 raw files remain preserved but are not read by this analysis.
-all_data <- bind_rows(rena, karim)
+all_data <- bind_rows(D1, D2)
 stopifnot(all(all_data$recovered >= 0), all(all_data$initial > 0),
           all(all_data$recovered + all_data$failure + all_data$missing == all_data$initial))
 
@@ -130,20 +132,20 @@ all_data <- all_data |>
     ),
     atacama_origin = if_else(origin == "Atacama", "Atacama", "Non-Atacama"),
     desiccated = if_else(
-      (experiment == "Rena" & group == "Control") |
-        (experiment == "Niclas" & group == "Control"), 0L, 1L
+      (experiment == "D1" & group == "Control") |
+        (experiment == "D3" & group == "Control"), 0L, 1L
     ),
     preconditioned = if_else(
-      experiment == "Niclas" |
-        (experiment == "Karim" & group == "Preconditioned"), 1L, 0L
+      experiment == "D3" |
+        (experiment == "D2" & group == "Preconditioned"), 1L, 0L
     ),
     protocol_group = case_when(
-      experiment == "Rena" & group == "Control" ~ "Rena_control",
-      experiment == "Rena" ~ "Rena_desiccation_no_preconditioning",
-      experiment == "Karim" & group == "Preconditioned" ~ "Karim_desiccation_96h_preconditioning",
-      experiment == "Karim" ~ "Karim_desiccation_no_preconditioning",
-      experiment == "Niclas" & group == "Control" ~ "Niclas_72h_preconditioning_control",
-      experiment == "Niclas" ~ "Niclas_72h_preconditioning_desiccation"
+      experiment == "D1" & group == "Control" ~ "D1_control",
+      experiment == "D1" ~ "D1_desiccation_no_preconditioning",
+      experiment == "D2" & group == "Preconditioned" ~ "D2_desiccation_96h_preconditioning",
+      experiment == "D2" ~ "D2_desiccation_no_preconditioning",
+      experiment == "D3" & group == "Control" ~ "D3_72h_preconditioning_control",
+      experiment == "D3" ~ "D3_72h_preconditioning_desiccation"
     ),
     biological_unit = "plate/filter",
     included_joint_model = TRUE,
@@ -167,7 +169,7 @@ d_all <- all_data |>
     survival_proportion = recovery,
     not_survived = initial - survived,
     non_survived = initial - survived,
-    experiment = relevel(factor(experiment), "Karim"),
+    experiment = relevel(factor(experiment), "D2"),
     strain = factor(strain),
     desiccated = relevel(factor(desiccated), "0"),
     preconditioned = relevel(factor(preconditioned), "0"),
@@ -243,10 +245,10 @@ variance_table <- data.frame(
 )
 
 # Model-based survival by preconditioning status within the experiment in
-# which both levels were directly observed (Karim).
+# which both levels were directly observed (D2).
 emm <- emmeans(fit, ~ preconditioned | experiment, type = "response")
 estimated_survival <- as.data.frame(emm) |>
-  filter(experiment == "Karim")
+  filter(experiment == "D2")
 
 write.csv(d, file.path(out, "analysis_data_desiccated.csv"), row.names = FALSE)
 write.csv(term_tests, file.path(out, "fixed_effect_likelihood_ratio_tests.csv"), row.names = FALSE)
@@ -260,7 +262,7 @@ saveRDS(fit, file.path(cache, "joint_model.rds"))
 for(v in c('experiment','preconditioned','strain','atacama_origin'))d[[v]]<-factor(d[[v]])
 cat('DESIGN TABLE\n');print(with(d,table(experiment,preconditioned)))
 cat('NONINTEGER COUNTS\n');print(subset(d,abs(survived-round(survived))>1e-8 | abs(initial-round(initial))>1e-8)[,c('experiment','strain','replicate','survived','initial')])
-k<-droplevels(subset(d,experiment=='Karim'))
+k<-droplevels(subset(d,experiment=='D2'))
 cat('DIRECT EXPERIMENT\n');print(with(k,table(strain,preconditioned)))
 write.csv(k,file.path(out,'D2_analysis_data.csv'),row.names=FALSE)
 mm<-model.matrix(~experiment+preconditioned+atacama_origin,d)
@@ -284,7 +286,7 @@ write.csv(data.frame(OR=exp(b),lower=exp(b-1.96*se),upper=exp(b+1.96*se)),file.p
 saveRDS(fits,file.path(cache,'D2_models.rds'))
 capture.output(sessionInfo(),file=file.path(out,'sessionInfo.txt'))
 
-r<-subset(d,experiment=='Rena');r$strain<-factor(r$strain);r$proportion<-r$survived/r$initial
+r<-subset(d,experiment=='D1');r$strain<-factor(r$strain);r$proportion<-r$survived/r$initial
 keep<-c('860.22.04','DF5050','ES5','PAP.22.29')
 x<-droplevels(subset(r,strain %in% keep))
 stopifnot(nrow(r)==40,nrow(x)==20,all(table(r$strain)==5))
@@ -376,35 +378,35 @@ species_labels <- c(
 # WWL115 plate-level markers although its means/CI and all models include them.
 # Keep explicit for byte/pixel parity; see Documentation/desiccation_provenance.md.
 publication_data <- all_data |>
-  filter(!(experiment == "Karim" & strain == "860.22.04")) |>
+  filter(!(experiment == "D2" & strain == "860.22.04")) |>
   mutate(treatment = case_when(
-    experiment == "Rena" & group == "Control" ~ "Control",
-    experiment == "Rena" & group == "Desiccation" ~ "Treatment",
-    experiment == "Karim" & group == "Not preconditioned" ~ "Control",
-    experiment == "Karim" & group == "Preconditioned" ~ "Treatment",
-    experiment == "Niclas" & group == "Control" ~ "Control",
-    experiment == "Niclas" & group == "Desiccation after preconditioning" ~
+    experiment == "D1" & group == "Control" ~ "Control",
+    experiment == "D1" & group == "Desiccation" ~ "Treatment",
+    experiment == "D2" & group == "Not preconditioned" ~ "Control",
+    experiment == "D2" & group == "Preconditioned" ~ "Treatment",
+    experiment == "D3" & group == "Control" ~ "Control",
+    experiment == "D3" & group == "Desiccation after preconditioning" ~
       "Treatment",
     TRUE ~ as.character(group)
   ))
 
 publication_summary <- summary |>
   mutate(treatment = case_when(
-    experiment == "Rena" & group == "Control" ~ "Control",
-    experiment == "Rena" & group == "Desiccation" ~ "Treatment",
-    experiment == "Karim" & group == "Not preconditioned" ~ "Control",
-    experiment == "Karim" & group == "Preconditioned" ~ "Treatment",
-    experiment == "Niclas" & group == "Control" ~ "Control",
-    experiment == "Niclas" & group == "Desiccation after preconditioning" ~
+    experiment == "D1" & group == "Control" ~ "Control",
+    experiment == "D1" & group == "Desiccation" ~ "Treatment",
+    experiment == "D2" & group == "Not preconditioned" ~ "Control",
+    experiment == "D2" & group == "Preconditioned" ~ "Treatment",
+    experiment == "D3" & group == "Control" ~ "Control",
+    experiment == "D3" & group == "Desiccation after preconditioning" ~
       "Treatment",
     TRUE ~ as.character(group)
   ))
 
 strain_orders <- list(
-  Rena = c("ES5", "PAP.22.29", "860.22.04", "DF5050", "TDT.23.02",
+  D1 = c("ES5", "PAP.22.29", "860.22.04", "DF5050", "TDT.23.02",
            "TDT.23.16", "GBG.22.06", "PWB.22.01"),
-  Karim = c("ES5", "PAP.22.29", "860.22.04", "ALT.22.08", "JU1365", "PS1159", "QG3759"),
-  Niclas = c("PAP.22.17", "ARO.22.05", "LAG.22.03")
+  D2 = c("ES5", "PAP.22.29", "860.22.04", "ALT.22.08", "JU1365", "PS1159", "QG3759"),
+  D3 = c("PAP.22.17", "ARO.22.05", "LAG.22.03")
 )
 
 make_experiment_panel <- function(experiment_name, colours, shapes) {
@@ -432,7 +434,7 @@ make_experiment_panel <- function(experiment_name, colours, shapes) {
     scale_y_continuous(breaks = seq(0, 100, 25), expand = expansion(mult = c(0.03, 0.04))) +
     coord_cartesian(ylim = c(-3, 103)) +
     labs(x = NULL, y = "Survival (%)", colour = NULL, shape = NULL,
-         tag=if(experiment_name=="Rena") "A" else "B") +
+         tag=if(experiment_name=="D1") "A" else "B") +
     theme_classic(base_size = 12) +
     theme(
       plot.background = element_rect(fill = "white", colour = NA),
@@ -454,17 +456,17 @@ make_experiment_panel <- function(experiment_name, colours, shapes) {
     )
 }
 
-p_rena <- make_experiment_panel(
-  "Rena",
+p_D1 <- make_experiment_panel(
+  "D1",
   c("Control" = "#666666", "Treatment" = "#C43C39"),
   c("Control" = 16, "Treatment" = 17)
 )
-p_karim <- make_experiment_panel(
-  "Karim",
+p_D2 <- make_experiment_panel(
+  "D2",
   c("Control" = "#666666", "Treatment" = "#C43C39"),
   c("Control" = 16, "Treatment" = 17)
 )
-p_publication_panels <- (p_rena / p_karim) +
+p_publication_panels <- (p_D1 / p_D2) +
   plot_layout(heights = c(1, 1), guides = "collect") +
   plot_annotation(theme = theme(plot.margin = margin(5, 5, 5, 5))) &
   theme(legend.position = "bottom")
