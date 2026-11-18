@@ -21,7 +21,7 @@ Running the scripts creates `Results/` for model results and tables, `Manuscript
 
 ## Data sources
 
-- `Data/raw/` contains the experimental source files, grouped by experiment. The D2 technical-count CSV supplies the original TR1–TR3 observations for *P. shuimeiren*.
+- `Data/raw/` contains the experimental source files, grouped by experiment.
 - `R/00_prepare_data.R` rebuilds the five required analysis tables from these sources. The start script runs this step automatically and saves the tables in `Results/inputs/`.
 - `Data/strain_names.csv` maps historical strain identifiers to the manuscript names.
 - `Data/reference/recorded_ec50_bootstrap_draws.csv` contains the 2,000 saved bootstrap results used to reproduce the reported EC50 confidence intervals exactly. This file contains derived results. All other models and the cultivation and desiccation bootstraps are recalculated. A fresh EC50 bootstrap can be requested with `run_all(".", bootstrap_mode = "fresh_bootstrap")`; its confidence limits may differ slightly.
