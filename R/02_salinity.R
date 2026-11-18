@@ -1,5 +1,5 @@
 # Salinity analyses for the current manuscript. Sources and curation are documented
-# in Data/curation/salinity/README.md. No files outside project_root are written.
+# in README.md. No files outside project_root are written.
 # bootstrap_reference_replay uses the recorded 2000 fitted cluster-bootstrap draws.
 # fresh_bootstrap uses deterministic replicate-specific seeds; it is not expected
 # to duplicate the historical load-balanced RNG schedule.

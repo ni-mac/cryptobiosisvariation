@@ -1,22 +1,30 @@
 # Variation in Cryptobiosis Potential Among Free-Living Desert Nematode Taxa
 
-Data and R scripts for the salinity dose-response, recovery, long-term cultivation (CE1–CE3), and desiccation (D1–D2) experiments.
+Data and R scripts for salinity dose-response, recovery, long-term cultivation (CE1–CE3), and desiccation (D1–D2) experiments.
 
 ## Run the analyses
 
-The analysis was tested with R 4.5.1 on Windows 11. Install the packages listed below. From the repository root, run:
+The analysis was tested with R 4.5.1 on Windows 11. Install the packages listed below. Download and extract the repository, open a terminal in the extracted folder, and run:
 
 ```sh
 Rscript R/00_run_all.R
 ```
 
-The scripts write model results and tables to `Results/` and figures to `Manuscript/`.
+Alternatively, set the extracted folder as the working directory in RStudio and run these commands in the R console:
+
+```r
+source("R/00_run_all.R")
+run_all(".")
+```
+
+Running the scripts creates `Results/` for model results and tables, `Manuscript/figures/` for the main figures, and `Manuscript/Supplement/Supplement_figures/` for the supplementary figures. Run information is saved in `Results/run_info/`. Existing output files are overwritten when the analyses are run again.
 
 ## Data sources
 
-- `Data/raw/` contains original experimental source files. Some original files retain historical labels. In the manuscript, ARO.22.05 is *Acrobeloides goughiensis* WWL726, and the cooler ES5 treatment is 16 °C.
-- `Data/curation/Cryptobiosis_master_final.xlsx` is the curated workbook used as an analysis input. The pipeline starts from this workbook and does not reconstruct it from the raw files. The cultivation analysis also reads original plate logs. Desiccation analyses read D1 and D2 inputs directly.
-- `Data/curation/salinity/recorded_ec50_bootstrap_draws.csv` contains the saved draws used by the default run to reproduce the reported EC50 confidence intervals.
+- `Data/raw/` contains the experimental source files, grouped by experiment.
+- `Data/curation/Cryptobiosis_master_final.xlsx` contains the combined observations used for salinity (`Core_master`), recovery (`salinity_recovery_raw_full`), and cultivation (`MAL_daily_long`). Cultivation plate dates are also read from the three original Excel workbooks ending in `20251023.xlsx`.
+- The scripts use the prepared master workbook and D2 CSV inputs. Preparing these inputs from the original files is currently a separate step.
+- `Data/curation/salinity/recorded_ec50_bootstrap_draws.csv` contains the 2,000 saved bootstrap results used to reproduce the reported EC50 confidence intervals. These are derived results. A fresh bootstrap can be requested through the salinity function and may give slightly different confidence limits.
 
 ## Tested package versions
 
@@ -41,5 +49,3 @@ The scripts write model results and tables to `Results/` and figures to `Manuscr
 | png | 0.1.8 |
 | jsonlite | 2.0.0 |
 | digest | 0.6.37 |
-
-Each run records its environment and execution times in `Results/run_info/`.
