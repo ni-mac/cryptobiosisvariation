@@ -8,7 +8,7 @@ run_all <- function(project_root, modules=c('salinity','cultivation','desiccatio
  if(length(missing))stop('Install required R packages before running: ',paste(missing,collapse=', '))
  dir.create(file.path(root,'.tmp'),showWarnings=FALSE)
  dir.create(file.path(root,'Results'),showWarnings=FALSE)
- dir.create(file.path(root,'Verification'),showWarnings=FALSE)
+ dir.create(file.path(root,'Results','run_info'),recursive=TRUE,showWarnings=FALSE)
  started<-Sys.time();timings<-list()
  sources<-c(salinity='02_salinity.R',cultivation='03_cultivation.R',desiccation='04_desiccation.R',supplement_figures='05_supplement_figures.R')
  for(nm in modules){
@@ -19,11 +19,11 @@ run_all <- function(project_root, modules=c('salinity','cultivation','desiccatio
   if(nm=='salinity')fun(root,bootstrap_mode=bootstrap_mode) else if(nm=='cultivation')fun(root,bootstrap_iterations=cultivation_bootstraps) else fun(root)
   timings[[nm]]<-data.frame(module=nm,seconds=as.numeric(difftime(Sys.time(),t0,units='secs')))
  }
- write.csv(do.call(rbind,timings),file.path(root,'Verification/run_times.csv'),row.names=FALSE)
+ write.csv(do.call(rbind,timings),file.path(root,'Results/run_info/run_times.csv'),row.names=FALSE)
  versions<-data.frame(package=needed,version=vapply(needed,function(x)as.character(packageVersion(x)),character(1)))
- write.csv(versions,file.path(root,'Verification/package_versions.csv'),row.names=FALSE)
- capture.output(sessionInfo(),file=file.path(root,'Verification/sessionInfo.txt'))
- writeLines(c(paste('Started:',started),paste('Finished:',Sys.time()),paste('Salinity bootstrap mode:',bootstrap_mode),paste('Cultivation bootstrap iterations:',cultivation_bootstraps)),file.path(root,'Verification/last_run.txt'))
+ write.csv(versions,file.path(root,'Results/run_info/package_versions.csv'),row.names=FALSE)
+ capture.output(sessionInfo(),file=file.path(root,'Results/run_info/sessionInfo.txt'))
+ writeLines(c(paste('Started:',started),paste('Finished:',Sys.time()),paste('Salinity bootstrap mode:',bootstrap_mode),paste('Cultivation bootstrap iterations:',cultivation_bootstraps)),file.path(root,'Results/run_info/last_run.txt'))
  invisible(timings)
 }
 args<-commandArgs(FALSE);script<-sub('^--file=','',grep('^--file=',args,value=TRUE)[1])
