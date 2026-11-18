@@ -1,0 +1,38 @@
+file,role,use
+Data/curation/Cryptobiosis_master_final.xlsx,Analysis input,Salinity: Core_master; recovery: Mira_raw_full; cultivation: MAL_daily_long
+Data/curation/salinity/README.md,Documentation,Source interpretation and historical strain labels
+Data/curation/salinity/recorded_ec50_bootstrap_draws.csv,Derived analysis input,Recorded cluster-bootstrap draws used for reported EC50 confidence intervals
+Data/raw/cultivation/CE1/MAL1_Salt_PAP.22.17_Acrobeloides_20251023.xlsx,Analysis input and original source,Cultivation plate dates and experiment start dates
+Data/raw/cultivation/CE1/MAL1_Salt_PAP.22.17_Acrobeloides_DailyLog.csv,Supporting source,Documents source observations or experimental design; not directly read by current scripts
+Data/raw/cultivation/CE2/MAL2_Salt_PAP.22.17_Acrobeloides_20251023.xlsx,Analysis input and original source,Cultivation plate dates and experiment start dates
+Data/raw/cultivation/CE2/MAL2_Salt_PAP.22.17_Acrobeloides_DailyLog.csv,Supporting source,Documents source observations or experimental design; not directly read by current scripts
+Data/raw/cultivation/CE2/MAL2_Salt_PAP.22.17_Acrobeloides_t202.csv,Supporting source,Documents source observations or experimental design; not directly read by current scripts
+Data/raw/cultivation/CE2/MAL2_Salt_PAP.22.17_Acrobeloides_t224.csv,Supporting source,Documents source observations or experimental design; not directly read by current scripts
+Data/raw/cultivation/CE2/MAL2_Salt_PAP.22.17_Acrobeloides_t250.csv,Supporting source,Documents source observations or experimental design; not directly read by current scripts
+Data/raw/cultivation/CE3/MAL3_Salt_ALT.22.08_Panagrolaimus_20251023.xlsx,Analysis input and original source,Cultivation plate dates and experiment start dates
+Data/raw/cultivation/CE3/MAL3_Salt_ALT.22.08_Panagrolaimus_DailyLog.csv,Supporting source,Documents source observations or experimental design; not directly read by current scripts
+Data/raw/cultivation/CE3/MAL3_Salt_ALT.22.08_Panagrolaimus_t116.csv,Supporting source,Documents source observations or experimental design; not directly read by current scripts
+Data/raw/cultivation/CE3/MAL3_Salt_ALT.22.08_Panagrolaimus_t130.csv,Supporting source,Documents source observations or experimental design; not directly read by current scripts
+Data/raw/cultivation/CE3/MAL3_Salt_ALT.22.08_Panagrolaimus_t155.csv,Supporting source,Documents source observations or experimental design; not directly read by current scripts
+Data/raw/cultivation/CE3/MAL3_Salt_ALT.22.08_Panagrolaimus_t162.csv,Supporting source,Documents source observations or experimental design; not directly read by current scripts
+Data/raw/cultivation/CE3/MAL3_Salt_ALT.22.08_Panagrolaimus_t68.csv,Supporting source,Documents source observations or experimental design; not directly read by current scripts
+Data/raw/cultivation/CE3/MAL3_Salt_ALT.22.08_Panagrolaimus_t91.csv,Supporting source,Documents source observations or experimental design; not directly read by current scripts
+Data/raw/desiccation/D1/Rena_anhydrobiosis.xlsx,Analysis input and original source,D1 survival counts
+Data/raw/desiccation/D2/Karim_Nematodes_survival_numbers_2026-09-28.xlsx,Supporting source,Documents source observations or experimental design; not directly read by current scripts
+Data/raw/desiccation/D2/Karim_P_shuimeiren_technical_counts_2026-09-30.csv,Prepared analysis input,D2 survival counts
+Data/raw/desiccation/D2/Karim_survival_combined_long_metadata.csv,Prepared analysis input,D2 survival counts
+Data/raw/salinity/ES5/Summary_SalExp_ES5_corr_R1+R2.xlsx,Supporting source,Documents source observations or experimental design; not directly read by current scripts
+Data/raw/salinity/ES5/Summary_SalExp_ES5_corr_R1.csv,Supporting source,Documents source observations or experimental design; not directly read by current scripts
+Data/raw/salinity/ES5/Summary_SalExp_ES5_corr_R2.csv,Supporting source,Documents source observations or experimental design; not directly read by current scripts
+Data/raw/salinity/Mira/Salinity_experiment_Amax_22°C_all_data.xlsx,Supporting source,Documents source observations or experimental design; not directly read by current scripts
+Data/raw/salinity/Mira/Salinity_experiment_PAP22.17.xlsx,Supporting source,Documents source observations or experimental design; not directly read by current scripts
+Data/raw/salinity/Mira/salinity_experiment_ALT22.08_22°C_16°C_all_data.xlsx,Supporting source,Documents source observations or experimental design; not directly read by current scripts
+Data/raw/salinity/Plectus_ARO/Summary_SalExp_ARO.22.05_Plectus_R1_corr.csv,Supporting source,Documents source observations or experimental design; not directly read by current scripts
+Data/raw/salinity/Plectus_ARO/Summary_SalExp_ARO.22.05_Plectus_R1_corr.xlsx,Supporting source,Documents source observations or experimental design; not directly read by current scripts
+Data/raw/salinity/Thomas/Salinity Treatments_ALT_LAG_AMAX.xlsx,Supporting source,Documents source observations or experimental design; not directly read by current scripts
+Data/raw/salinity/WWL709/Summary_SalExp_PAP.22.17_Acro_R1.csv,Supporting source,Documents source observations or experimental design; not directly read by current scripts
+Data/raw/salinity/WWL709/Summary_SalExp_PAP.22.17_Acro_R1.xlsx,Supporting source,Documents source observations or experimental design; not directly read by current scripts
+Data/raw/salinity/WWL709/Summary_SalExp_PAP.22.17_Acro_R2_corr.csv,Supporting source,Documents source observations or experimental design; not directly read by current scripts
+Data/raw/salinity/WWL709/Summary_SalExp_PAP.22.17_Acro_R2_corr.xlsx,Supporting source,Documents source observations or experimental design; not directly read by current scripts
+Data/raw/salinity/design/OVERVIEW_EXPERIMENTS.xlsx,Supporting source,Documents source observations or experimental design; not directly read by current scripts
+Data/strain_names.csv,Documentation,Source interpretation and historical strain labels

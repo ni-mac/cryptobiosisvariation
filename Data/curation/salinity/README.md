@@ -7,11 +7,11 @@ The shared `../Cryptobiosis_master_final.xlsx` is the historical **curated integ
 
 Known explicit curation decisions:
 
-- Historical ES5 15C model key is retained, while figure and manuscript use the subsequently confirmed 16C exposure label. This is a label correction, not a refit to different counts.
+- The cooler ES5 treatment is 16 °C. Historical 15 °C labels are corrected during import. The saved bootstrap file retains its original column header, translated to 16 °C during import.
 - Preliminary failed ES5 run is excluded; observation days follow documented per-experiment source mapping.
 - Thomas combined affected endpoint includes dead plus dormant counts. Other source-specific mortality/immobility definitions are preserved and recorded.
 - The recovery analysis excludes the previously identified ALT16C/17PSU/replicate1 internally inconsistent count (10 recovered versus4 candidates), plus zero-candidate plates for candidate-conditional recovery; the reference picture marks zero-candidate tested doses with crosses.
 - Supplementary Figure S2 is rendered from the recomputed recovery counts.
 
 
-8 November 2026: active analysis and result CSVs now use `ES5__16C`. The immutable historical bootstrap reference retains its original header, translated to the current label during import. Earlier legacy-key statements above are historical and superseded by this correction. No numerical estimates were changed.
+Active analysis and result CSVs use `ES5__16C`. The correction changes the treatment label and preserves the observed counts.
