@@ -22,8 +22,8 @@ Running the scripts creates `Results/` for model results and tables, `Manuscript
 ## Data sources
 
 - `Data/raw/` contains the experimental source files, grouped by experiment.
-- `Data/curation/Cryptobiosis_master_final.xlsx` contains the combined observations used for salinity (`Core_master`), recovery (`salinity_recovery_raw_full`), and cultivation (`MAL_daily_long`). Cultivation plate dates are also read from the three original Excel workbooks ending in `20251023.xlsx`.
-- The scripts use the prepared master workbook and D2 CSV inputs. Preparing these inputs from the original files is currently a separate step.
+- Analyses use the combined observations in `Data/curation/Cryptobiosis_master_final.xlsx` together with original cultivation and desiccation files
+- The scripts use the prepared master workbook and D2 CSV inputs. Running Rscript R/00_run_all.R does not recreate these files from the original data.
 - `Data/curation/salinity/recorded_ec50_bootstrap_draws.csv` contains the 2,000 saved bootstrap results used to reproduce the reported EC50 confidence intervals. These are derived results. A fresh bootstrap can be requested through the salinity function and may give slightly different confidence limits.
 
 ## Tested package versions
