@@ -1,4 +1,4 @@
-# Cultivation: derive observations from the frozen integration, audit plate dates,
+# Cultivation: analyze observations rebuilt from source logs, audit plate dates,
 # group all decimal replicate suffixes, refit occurrence + conditional AFT,
 # repeat 1000 lineage bootstraps, and render the published figure from R code.
 run_cultivation <- function(project_root, bootstrap_iterations=1000L) {
@@ -8,7 +8,7 @@ run_cultivation <- function(project_root, bootstrap_iterations=1000L) {
  write_out<-function(x,nm)write.csv(x,file.path(out,nm),row.names=FALSE,na='')
  num<-function(x)suppressWarnings(as.numeric(as.character(x)))
  key<-function(df,cols)do.call(paste,c(df[cols],sep='|'))
- raw<-read_excel(file.path(project_root,'Data/curation/Cryptobiosis_master_final.xlsx'),sheet='MAL_daily_long',col_types='text') %>% mutate(Source_snapshot_row=row_number()+1L,.before=1)
+ raw<-read.csv(file.path(project_root,'Results/inputs/cultivation_observations.csv'),colClasses='character',check.names=FALSE,na.strings='') %>% mutate(Source_snapshot_row=row_number()+1L,.before=1)
  line_keys<-c('Experiment_id','Strain','Salinity_PSU','Replicate');plate_keys<-c(line_keys,'Generation');obs_keys<-c(plate_keys,'Day')
  parse_status<-function(x)map_dbl(as.character(x),function(v){h<-str_extract_all(ifelse(is.na(v),'',v),'(?<![0-9])[0-7](?![0-9])')[[1]];if(length(h)==1)as.numeric(h) else NA_real_})
  mal<-raw %>% mutate(Day=num(Day),Salinity_PSU=num(Salinity_PSU),Replicate=num(Replicate),Status_code=coalesce(parse_status(Status_raw),num(Status_code))) %>% filter(!is.na(Status_code),Status_code %in% 0:7)

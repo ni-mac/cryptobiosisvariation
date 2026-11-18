@@ -10,6 +10,9 @@ run_all <- function(project_root, modules=c('salinity','cultivation','desiccatio
  dir.create(file.path(root,'Results'),showWarnings=FALSE)
  dir.create(file.path(root,'Results','run_info'),recursive=TRUE,showWarnings=FALSE)
  started<-Sys.time();timings<-list()
+ preparation <- new.env(parent=globalenv())
+ sys.source(file.path(root,'R/00_prepare_data.R'),envir=preparation)
+ preparation$run_prepare_data(root)
  sources<-c(salinity='02_salinity.R',cultivation='03_cultivation.R',desiccation='04_desiccation.R',supplement_figures='05_supplement_figures.R')
  for(nm in modules){
   if(!nm %in% names(sources))stop('Unknown module: ',nm)

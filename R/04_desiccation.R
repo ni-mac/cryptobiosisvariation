@@ -76,9 +76,9 @@ D1$strain <- recode(D1$strain, `TDT.23.02` = "TDT.23.02", `TDT.23.16` = "TDT.23.
                       `GBG22.06` = "GBG.22.06")
 
 # D2: same drying/rehydration protocol in both groups; only 96 h preconditioning differs.
-D20 <- read.csv(file.path(raw, "D2", "D2_survival_combined_long_metadata.csv"), check.names = FALSE)
+D20 <- read.csv(file.path(project_root, "Results/inputs/D2_survival.csv"), check.names = FALSE)
 shuimeiren_technical <- read.csv(
-  file.path(raw, "D2", "D2_P_shuimeiren_technical_counts_2026-09-30.csv"),
+  file.path(project_root, "Results/inputs/D2_technical_counts.csv"),
   check.names = FALSE
 ) |>
   transmute(
@@ -111,8 +111,7 @@ all_data <- bind_rows(D1, D2)
 stopifnot(all(all_data$recovered >= 0), all(all_data$initial > 0),
           all(all_data$recovered + all_data$failure + all_data$missing == all_data$initial))
 
-# Analysis metadata used by the single joint model. Thalia's historical data
-# are deliberately excluded because their denominators cannot be reconciled.
+# Analysis metadata for the two desiccation protocols in the manuscript.
 all_data <- all_data |>
   mutate(
     species = case_when(

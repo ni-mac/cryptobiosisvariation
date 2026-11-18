@@ -21,10 +21,10 @@ Running the scripts creates `Results/` for model results and tables, `Manuscript
 
 ## Data sources
 
-- `Data/raw/` contains the experimental source files, grouped by experiment.
-- `Data/curation/Cryptobiosis_master_final.xlsx` contains the combined observations used for salinity (`Core_master`), recovery (`salinity_recovery_raw_full`), and cultivation (`MAL_daily_long`). Cultivation plate dates are also read from the three original Excel workbooks ending in `20251023.xlsx`.
-- The scripts use the prepared master workbook and D2 CSV inputs. Preparing these inputs from the original files is currently a separate step.
-- `Data/curation/salinity/recorded_ec50_bootstrap_draws.csv` contains the 2,000 saved bootstrap results used to reproduce the reported EC50 confidence intervals. These are derived results. A fresh bootstrap can be requested through the salinity function and may give slightly different confidence limits.
+- `Data/raw/` contains the experimental source files, grouped by experiment. The D2 technical-count CSV supplies the original TR1–TR3 observations for *P. shuimeiren*.
+- `R/00_prepare_data.R` rebuilds the five required analysis tables from these sources. The start script runs this step automatically and saves the tables in `Results/inputs/`.
+- `Data/strain_names.csv` maps historical strain identifiers to the manuscript names.
+- `Data/reference/recorded_ec50_bootstrap_draws.csv` contains the 2,000 saved bootstrap results used to reproduce the reported EC50 confidence intervals exactly. This file contains derived results. All other models and the cultivation and desiccation bootstraps are recalculated. A fresh EC50 bootstrap can be requested with `run_all(".", bootstrap_mode = "fresh_bootstrap")`; its confidence limits may differ slightly.
 
 ## Tested package versions
 

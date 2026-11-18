@@ -12,12 +12,12 @@ run_salinity <- function(project_root,
     library(ggplot2); library(patchwork); library(readr); library(scales); library(cowplot)
   })
   root <- normalizePath(project_root, winslash = "/", mustWork = TRUE)
-  cur <- file.path(root, "Data", "curation", "salinity")
+  cur <- file.path(root, "Data", "reference")
   cache <- file.path(root, "Results", "cache", "salinity")
   stats <- file.path(root, "Results", "statistics", "salinity")
   figures <- file.path(root, "Manuscript", "figures")
   for (folder in c(cache, stats, figures)) dir.create(folder, recursive=TRUE, showWarnings=FALSE)
-  source_file <- file.path(root,"Data","curation","Cryptobiosis_master_final.xlsx")
+  input_folder <- file.path(root, "Results", "inputs")
   options(stringsAsFactors=FALSE)
   here <- cache
 
@@ -67,7 +67,7 @@ wilson <- function(k, n, z = qnorm(0.975)) {
 }
 
 
-core <- read_excel(source_file, sheet = "Core_master", guess_max = 5000)
+core <- read.csv(file.path(input_folder, "salinity_observations.csv"), check.names = FALSE, na.strings = "")
 derived_cols <- c(
   "experimental_unit_id", "rehydration_group", "metadata_status", "analysis_role",
   "experiment_year", "protocol_writeup_year",
@@ -122,7 +122,7 @@ write.csv(metadata_validation, file.path(here, "metadata_validation.csv"), row.n
 
 # Preserve source counts and use the endpoint prepared for analysis in each
 # source workbook. For salinity_recovery's A. maximus, ALT.22.08 and PAP.22.17 sheets this
-# is Dead_with_paralysed, stored as Dead in Core_master and explicitly named
+# is Dead_with_paralysed, stored as Dead during preparation and explicitly named
 # in Mortality_definition. This is an operational, not confirmed, mortality endpoint.
 sal$Analysis_dead <- sal$Dead
 sal$Analysis_not_dead <- sal$Total - sal$Analysis_dead
@@ -796,7 +796,7 @@ composition <- data.frame(F=adjusted_test$F[2],df1=adjusted_test$Df[2],
 write.csv(composition,file.path(stats,"day4_dead_vs_inactive_global_interaction.csv"),row.names=FALSE)
 
 m9_ids <- c("A.max_22C", "ALT.22.08_16C", "ALT.22.08_22C", "PAP.22.17_16C")
-m9_raw <- read_excel(source_file, sheet = "salinity_recovery_raw_full", guess_max = 1000) %>%
+m9_raw <- read.csv(file.path(input_folder, "recovery_observations.csv"), check.names = FALSE, na.strings = "") %>%
   mutate(
     Day = suppressWarnings(as.numeric(Day)),
     salinity_PSU = suppressWarnings(as.numeric(sub("^([0-9.]+).*", "\\1", as.character(Treatment)))),
