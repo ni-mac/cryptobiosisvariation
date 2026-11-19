@@ -1,4 +1,5 @@
-# Shared publication style: sizes are points at the saved figure dimensions.
+# Uniform formatting of figures
+
 figure_style <- list(blue='#4477AA', red='#CC6677', green='#228B75', orange='#C47732',
                      axis_title=14, axis_text=11, species=12, legend=11,
                      panel_tag=18, width=9, dpi=300)
