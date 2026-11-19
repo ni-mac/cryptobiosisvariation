@@ -1,5 +1,5 @@
 # Rebuild the analysis tables from the experimental source files.
-# Outputs are five CSV tables, that are required for downstream analysis.
+# Creates the five CSV tables used by the analysis scripts.
 
 run_prepare_data <- function(project_root) {
   suppressPackageStartupMessages({
@@ -8,19 +8,21 @@ run_prepare_data <- function(project_root) {
     library(tidyr)
   })
   root <- normalizePath(project_root, winslash = '/', mustWork = TRUE)
-  output <- file.path(root, 'Results', 'inputs')
-  dir.create(output, recursive = TRUE, showWarnings = FALSE)
+  output_folder <- file.path(root, 'Results', 'inputs')
+  dir.create(output_folder, recursive = TRUE, showWarnings = FALSE)
+
   numeric_value <- function(x) suppressWarnings(as.numeric(as.character(x)))
   column <- function(x, name) {
     if (name %in% names(x)) x[[name]] else rep(NA, nrow(x))
   }
-  number_in_label <- function(x) numeric_value(sub('^[^0-9-]*(-?[0-9.]+).*', '\\1', as.character(x)))
+  number_in_label <- function(x)
+    numeric_value(sub('^[^0-9-]*(-?[0-9.]+).*', '\\1', as.character(x)))
   read_source_csv <- function(path) {
     read.csv(path, sep = ';', colClasses = 'character', check.names = FALSE,
              na.strings = c('', 'NA'), fileEncoding = 'UTF-8-BOM')
   }
   save_table <- function(x, name) {
-    write.csv(x, file.path(output, name), row.names = FALSE, na = '')
+    write.csv(x, file.path(output_folder, name), row.names = FALSE, na = '')
     x
   }
   source_path <- function(path) substring(path, nchar(root) + 2L)
@@ -76,7 +78,8 @@ run_prepare_data <- function(project_root) {
              !is.na(numeric_value(x$Reference)), , drop = FALSE]
     z <- z[order(numeric_value(z$Day), number_in_label(z$Treatment), numeric_value(z$Reference)), ]
     dose_days <- paste(numeric_value(z$Day), number_in_label(z$Treatment))
-    if (any(table(dose_days) != 3L)) stop('Expected three source plates per dose/day in ', spec[[3]])
+    if (any(table(dose_days) != 3L))
+      stop('Expected three source plates per dose/day in ', spec[[3]])
     corrected_replicate <- ave(seq_len(nrow(z)), dose_days, FUN = seq_along)
     y <- salinity_table(z, spec[[3]], spec[[4]], spec[[5]], 'parthenogenetic',
                         spec[[6]], spec[[7]], path, spec[[2]], 'salinity_recovery')
@@ -130,7 +133,6 @@ run_prepare_data <- function(project_root) {
     y$Mortality_analysis_eligible <- !is.na(y$Total) & y$Total == 20 &
       y$Dead >= 0 & y$Alive >= 0
     if (spec[[2]] == 'ES5_salinity_R1') {
-      # Day 11 is a later rehydration check with no original-cohort counts.
       y$Mortality_analysis_eligible[y$Observation_day_raw == 11] <- FALSE
       y$Mortality_definition <- 'Main source summary: immobile or missing animals were counted as dead; the later ad hoc water-rehydration check is exploratory and stored separately.'
     }
@@ -170,6 +172,7 @@ run_prepare_data <- function(project_root) {
     y$Mortality_definition <- 'Original 20-adult cohort: Dead/20; dormant animals are treated as not dead descriptively but were counted without standardized rehydration. Where offspring increased Alive, Adult + Dead + Dormant reconstructs the original cohort and juveniles are excluded.'
     salinity[[id]] <- y
   }
+
   core <- bind_rows(salinity)
   core$Count_consistency_QC <- ifelse(core$Alive + core$Dead == core$Total, 'OK', 'mismatch')
   save_table(core, 'salinity_observations.csv')
@@ -188,31 +191,34 @@ run_prepare_data <- function(project_root) {
   }))
   save_table(recovery, 'recovery_observations.csv')
 
-  # Each DailyLog contains all recorded observation days for its experiment.
   cultivation <- list()
-  for (ce in 1:3) {
-    directory <- file.path(root, 'Data/raw/cultivation', paste0('CE', ce))
+  for (experiment_number in 1:3) {
+    directory <- file.path(root, 'Data/raw/cultivation', paste0('CE', experiment_number))
     path <- list.files(directory, pattern = '_daily_log[.]csv$', full.names = TRUE)
     stopifnot(length(path) == 1L)
     wide <- read_source_csv(path)
-    long <- pivot_longer(wide, matches('^t[0-9]+$'), names_to = 'Observation_day_raw', values_to = 'Status_raw', cols_vary = 'slowest')
+    long <- pivot_longer(
+      wide, matches('^t[0-9]+$'),
+      names_to = 'Observation_day_raw', values_to = 'Status_raw',
+      cols_vary = 'slowest'
+    )
     long <- long[!is.na(long$Status_raw) & nzchar(trimws(long$Status_raw)), ]
     long$Status_raw <- trimws(long$Status_raw)
-    long$Experiment_id <- paste0('MAL', ce)
-    long$Strain <- if (ce == 3L) 'ALT.22.08' else 'PAP.22.17'
+    long$Experiment_id <- paste0('MAL', experiment_number)
+    long$Strain <- if (experiment_number == 3L) 'ALT.22.08' else 'PAP.22.17'
     long$Salinity_PSU <- numeric_value(long[['Treatment(PSU)']])
     long$Replicate <- numeric_value(long$Replicate)
     long$Day <- as.numeric(sub('^t', '', long$Observation_day_raw))
     long$Status_code <- numeric_value(sub('.*?([0-7]).*', '\\1', long$Status_raw))
     long$Source_file <- source_path(path)
-    cultivation[[ce]] <- long[, c('Experiment_id', 'Strain', 'Salinity_PSU', 'Replicate',
+    cultivation[[experiment_number]] <- long[, c('Experiment_id', 'Strain', 'Salinity_PSU', 'Replicate',
                                   'Generation', 'Observation_day_raw', 'Status_raw', 'Day',
                                   'Status_code', 'Source_file')]
   }
   save_table(bind_rows(cultivation), 'cultivation_observations.csv')
 
   path <- file.path(root, 'Data/raw/desiccation/D2/D2_survival.xlsx')
-  cells <- read_excel(path, sheet = 'survival_numbers', col_names = FALSE,
+  survival_cells <- read_excel(path, sheet = 'survival_numbers', col_names = FALSE,
                       col_types = 'text', .name_repair = 'minimal')
   strain_metadata <- list(
     ALT2208 = c('Panagrolaimus sp.', 'asexual', 'Altiplano, Chile'),
@@ -224,20 +230,20 @@ run_prepare_data <- function(project_root) {
   )
   d2 <- list()
   treatment <- NA_character_
-  for (i in seq_len(nrow(cells))) {
+  for (source_row in seq_len(nrow(survival_cells))) {
     if (length(d2) == 36L) break
-    label <- as.character(cells[[1]][i])
+    label <- as.character(survival_cells[[1]][source_row])
     if (is.na(label)) next
     if (startsWith(label, 'Acclimated survival')) treatment <- 'Acclimated'
     if (startsWith(label, 'Non-acclimated survival')) treatment <- 'Non_acclimated'
     if (!label %in% names(strain_metadata)) next
     spec <- strain_metadata[[label]]
     for (replicate in 1:3) {
-      j <- 2L + (replicate - 1L) * 3L
-      alive <- numeric_value(cells[[j]][i])
-      total <- numeric_value(cells[[j + 1L]][i])
+      count_column <- 2L + (replicate - 1L) * 3L
+      alive <- numeric_value(survival_cells[[count_column]][source_row])
+      total <- numeric_value(survival_cells[[count_column + 1L]][source_row])
       if (!is.finite(alive) || !is.finite(total) || total <= 0 || alive < 0 || alive > total) {
-        stop('Invalid D2 count at source row ', i, ', replicate ', replicate)
+        stop('Invalid D2 count at source row ', source_row, ', replicate ', replicate)
       }
       d2[[length(d2) + 1L]] <- data.frame(
         Strain = label, Species = spec[[1]], reproduction = spec[[2]],
@@ -253,16 +259,17 @@ run_prepare_data <- function(project_root) {
   stopifnot(!anyDuplicated(d2[c('Strain', 'Treatment', 'Replicate')]),
             all(table(d2$Treatment) == 18L))
   save_table(d2, 'D2_survival.csv')
+
   path <- file.path(root, 'Data/raw/desiccation/D2/D2_WWL115_technical_counts.csv')
-  technical <- read.csv(path, check.names = FALSE)
-  stopifnot(nrow(technical) == 6L, all(technical[c('TR1', 'TR2', 'TR3')] >= 0),
-            all(technical[c('TR1', 'TR2', 'TR3')] <= 100))
-  technical$Alive_sum <- rowSums(technical[c('TR1', 'TR2', 'TR3')])
-  technical$Total_counted <- 300
-  technical$Dead_sum <- 300 - technical$Alive_sum
-  technical$Alive_mean_per_100 <- round(technical$Alive_sum / 3, 10)
-  technical$Survival_percent <- technical$Alive_mean_per_100
-  save_table(technical, 'D2_technical_counts.csv')
+  technical_counts <- read.csv(path, check.names = FALSE)
+  stopifnot(nrow(technical_counts) == 6L, all(technical_counts[c('TR1', 'TR2', 'TR3')] >= 0),
+            all(technical_counts[c('TR1', 'TR2', 'TR3')] <= 100))
+  technical_counts$Alive_sum <- rowSums(technical_counts[c('TR1', 'TR2', 'TR3')])
+  technical_counts$Total_counted <- 300
+  technical_counts$Dead_sum <- 300 - technical_counts$Alive_sum
+  technical_counts$Alive_mean_per_100 <- round(technical_counts$Alive_sum / 3, 10)
+  technical_counts$Survival_percent <- technical_counts$Alive_mean_per_100
+  save_table(technical_counts, 'D2_technical_counts.csv')
   message('Prepared salinity, recovery, cultivation and D2 tables from source files.')
-  invisible(output)
+  invisible(output_folder)
 }
