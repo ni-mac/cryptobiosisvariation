@@ -41,9 +41,9 @@ run_cultivation <- function(project_root, bootstrap_iterations=1000L) {
   for(fmt in c('%d.%m.%Y','%Y-%m-%d')){a<-suppressWarnings(as.Date(v,format=fmt));if(!is.na(a))return(a)};as.Date(NA)
  }
  dates<-list();origins<-list();k<-0
- books<-list.files(file.path(project_root,'Data/raw/cultivation'),pattern='20251023.xlsx$',recursive=TRUE,full.names=TRUE)
+ books<-list.files(file.path(project_root,'Data/raw/cultivation'),pattern='_plate_records[.]xlsx$',recursive=TRUE,full.names=TRUE)
  stopifnot(length(books)==3)
- for(book in books){exp<-substr(basename(book),1,4)
+ for(book in books){exp<-sub('^CE','MAL',sub('_.*$','',basename(book)))
   for(sh in excel_sheets(book)){
    cells<-suppressMessages(read_excel(book,sheet=sh,col_names=FALSE,col_types='text',range=cell_limits(c(1,1),c(NA,NA)),.name_repair='minimal'))
    if(sh=='Days'&&ncol(cells)>=2){for(i in seq_len(nrow(cells))){if(!is.na(cells[[2]][i])&&cells[[2]][i]=='0'){a<-parse_date(cells[[1]][i]);if(!is.na(a))origins[[exp]]<-a}}}

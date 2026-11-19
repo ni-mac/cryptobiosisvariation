@@ -21,6 +21,8 @@ Running the scripts creates `Results/` for model results and tables, `Manuscript
 
 ## Data sources
 
+Cultivation files use the prefixes `CE1_WWL709`, `CE2_WWL709`, and `CE3_WWL002`. Each experiment has a `_daily_log.csv` for observations and a `_plate_records.xlsx` for plate information.
+
 Salinity files are organized by strain (`WWL002`, `WWL709`, `WWL726`, `A_maximus`, and `ES5`). The `series2023` folder contains a shared experiment with several strains.
 
 - `Data/raw/` contains the experimental source files, grouped by experiment. The salinity workbooks contain the supplied adjusted observation sheets used for the analyses. The CE2 and CE3 DailyLogs combine the original logs and the later observation files.

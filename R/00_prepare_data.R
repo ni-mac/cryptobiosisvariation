@@ -199,7 +199,7 @@ run_prepare_data <- function(project_root) {
   cultivation <- list()
   for (ce in 1:3) {
     directory <- file.path(root, 'Data/raw/cultivation', paste0('CE', ce))
-    path <- list.files(directory, pattern = 'DailyLog.csv$', full.names = TRUE)
+    path <- list.files(directory, pattern = '_daily_log[.]csv$', full.names = TRUE)
     stopifnot(length(path) == 1L)
     wide <- read_source_csv(path)
     long <- pivot_longer(wide, matches('^t[0-9]+$'), names_to = 'Observation_day_raw', values_to = 'Status_raw', cols_vary = 'slowest')
