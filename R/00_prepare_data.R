@@ -50,15 +50,15 @@ run_prepare_data <- function(project_root) {
   }
 
   # Adjusted observation sheets also retain the counts before M9 recovery.
-  source_dir <- file.path(root, 'Data/raw/salinity/salinity_recovery')
+  source_dir <- file.path(root, 'Data/raw/salinity')
   specs <- list(
-    list('Salinity_experiment_Amax_22°C_all_data.xlsx', 'Amax_22°C_adujsted_final',
+    list('A_maximus/Salinity_experiment_Amax_22°C_all_data.xlsx', 'Amax_22°C_adujsted_final',
          'A.max_22C', 'A. max', 'Acrobeloides maximus', 'Senegal', 22, 20),
-    list('Salinity_experiment_PAP22.17.xlsx', 'PAP22.17_16°C_adjusted',
+    list('WWL709/Salinity_experiment_PAP22.17.xlsx', 'PAP22.17_16°C_adjusted',
          'PAP.22.17_16C', 'PAP.22.17', 'Acrobeloides tricornis', 'Chile, Paposo', 16, 20),
-    list('salinity_experiment_ALT22.08_22°C_16°C_all_data.xlsx', 'ALT22.08_16°C_adjusted',
+    list('WWL002/salinity_experiment_ALT22.08_22°C_16°C_all_data.xlsx', 'ALT22.08_16°C_adjusted',
          'ALT.22.08_16C', 'ALT.22.08', 'Panagrolaimus sp.', 'Chile, Altiplano', 16, 30),
-    list('salinity_experiment_ALT22.08_22°C_16°C_all_data.xlsx', 'ALT22.08_22°C_adjusted ',
+    list('WWL002/salinity_experiment_ALT22.08_22°C_16°C_all_data.xlsx', 'ALT22.08_22°C_adjusted ',
          'ALT.22.08_22C', 'ALT.22.08', 'Panagrolaimus sp.', 'Chile, Altiplano', 22, 30)
   )
   recovery <- list()
@@ -110,7 +110,7 @@ run_prepare_data <- function(project_root) {
          'PAP.22.17', 'Acrobeloides tricornis', 'parthenogenetic', 'Chile, Paposo', 22),
     list('WWL709/Summary_SalExp_PAP.22.17_Acro_R2_corr.csv', 'PAP.22.17_salinity_R2',
          'PAP.22.17', 'Acrobeloides tricornis', 'parthenogenetic', 'Chile, Paposo', 22),
-    list('Plectus_ARO/Summary_SalExp_ARO.22.05_Plectus_R1_corr.csv', 'ARO.22.05_salinity_R1',
+    list('WWL726/Summary_SalExp_ARO.22.05_Plectus_R1_corr.csv', 'ARO.22.05_salinity_R1',
          'ARO.22.05', 'Acrobeloides goughiensis', 'asexual', 'Atacama Desert, Chile', 22),
     list('ES5/Summary_SalExp_ES5_corr_R1.csv', 'ES5_salinity_R1',
          'ES5', 'Panagrolaimus einhardi', 'sexual', 'Bornheim, Bonn, Germany', 16)

@@ -121,14 +121,14 @@ metadata_validation <- bind_rows(
 write.csv(metadata_validation, file.path(here, "metadata_validation.csv"), row.names = FALSE, na = "")
 
 # Preserve source counts and use the endpoint prepared for analysis in each
-# source workbook. For salinity_recovery's A. maximus, ALT.22.08 and PAP.22.17 sheets this
+# source workbook. For the A. maximus, ALT.22.08 and PAP.22.17 adjusted sheets this
 # is Dead_with_paralysed, stored as Dead during preparation and explicitly named
 # in Mortality_definition. This is an operational, not confirmed, mortality endpoint.
 sal$Analysis_dead <- sal$Dead
 sal$Analysis_not_dead <- sal$Total - sal$Analysis_dead
 sal$Analysis_endpoint_definition <- sal$Mortality_definition
 
-# Dose-response days documented in salinity_recovery's thesis and prepared *_for_R sheets.
+# Dose-response days documented in the experiment records and analysis sheets.
 salinity_recovery_analysis_days <- list(
   "A.max_22C" = c(4, 7),
   "ALT.22.08_16C" = c(4, 7, 9),
