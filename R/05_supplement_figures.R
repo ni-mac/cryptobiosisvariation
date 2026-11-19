@@ -1,11 +1,11 @@
-# Supplemental visuals drawn from documented protocol and analysed recovery counts.
+# Supplement figures
+
 run_supplement_figures <- function(project_root) {
  suppressPackageStartupMessages({library(grid);library(ggplot2);library(patchwork);library(dplyr);library(cowplot)})
  root<-normalizePath(project_root,winslash='/',mustWork=TRUE)
  sys.source(file.path(root,'R/01_figure_style.R'),envir=environment())
  out<-file.path(root,'Manuscript/Supplement/Supplement_figures')
  dir.create(out,recursive=TRUE,showWarnings=FALSE)
- # S1 is a table only; no flow diagram and no D3.
  png(file.path(out,'Figure_S1_desiccation_design.png'),width=2700,height=810,res=300,bg='white')
  grid.newpage()
  widths<-c(.19,.19,.23,.19,.20);edges<-c(0,cumsum(widths))
@@ -15,12 +15,11 @@ run_supplement_figures <- function(project_root) {
  fills<-c('#eeeeee','#fff2cc','#f4cccc','#cfe8f3','#d9d2e9')
  for(j in 1:5)for(i in 0:2){
   yc<-if(i==0).83 else if(i==1).515 else .185;hh<-if(i==0).28 else .33
-  grid.rect(x=edges[j]+widths[j]/2,y=yc,width=widths[j],height=hh,gp=gpar(fill=if(i==0)fills[j] else adjustcolor(fills[j],alpha.f=.25),col='#888',lwd=.7))
+  grid.rect(x=edges[j]+widths[j]/2,y=yc,width=widths[j],height=hh,gp=gpar(fill=if(i==0)fills[j] else adjustcolor(fills[j],alpha.f=.25),col='#888888',lwd=.7))
   grid.text(if(i==0)headers[j] else rows[[i]][j],x=edges[j]+widths[j]/2,y=yc,
     gp=gpar(fontsize=if(i==0)11.5 else 10.5,fontface=if(i==0)'bold' else 'plain',fontfamily='sans'))
  }
  dev.off()
- # S2: preserve recovery counts, pooled denominators, individual points and crosses.
  st<-file.path(root,'Results/statistics/salinity')
  points<-read.csv(file.path(st,'m9_recovery_analysis_ready.csv'))
  pooled<-read.csv(file.path(st,'m9_recovery_by_salinity.csv'))
@@ -52,7 +51,6 @@ run_supplement_figures <- function(project_root) {
  recovery_temp<-file.path(root,'.tmp','Figure_S2_recovery_render.png')
  ggsave(recovery_temp,plot,width=9,height=7.5,dpi=300,bg='white')
  if(!file.copy(recovery_temp,file.path(out,'Figure_S2_recovery.png'),overwrite=TRUE)) warning('Rendered figure must be copied to final destination')
- # Explicit plotting inputs enable checking that only style, not recovery results, changed.
  dir.create(file.path(root,'Results/cache/supplement'),recursive=TRUE,showWarnings=FALSE)
  saveRDS(list(points=points,pooled=pooled,tested=tested),file.path(root,'Results/cache/supplement/recovery_plot_inputs.rds'))
  invisible(out)
