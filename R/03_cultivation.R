@@ -1,6 +1,5 @@
-# Cultivation: analyze observations rebuilt from source logs, audit plate dates,
-# group all decimal replicate suffixes, refit occurrence + conditional AFT,
-# repeat 1000 lineage bootstraps, and render the published figure from R code.
+# Cultivation analysis
+
 run_cultivation <- function(project_root, bootstrap_iterations=1000L) {
  suppressPackageStartupMessages({library(readxl);library(dplyr);library(tidyr);library(stringr);library(purrr);library(survival);library(ggplot2);library(patchwork)})
  out <- file.path(project_root,'Results/statistics/cultivation');dir.create(out,recursive=TRUE,showWarnings=FALSE)
@@ -28,13 +27,10 @@ run_cultivation <- function(project_root, bootstrap_iterations=1000L) {
   tt<-anova(update(m,.~1),m,test=if(g=='CE2')'F' else 'Chisq')
   tests[[g]]<-data.frame(CE=g,model=if(g=='CE2')'quasibinomial' else 'binomial',dispersion=summary(q)$dispersion,statistic=if(g=='CE2')tt$F[2] else tt$Deviance[2],df=tt$Df[2],p=if(g=='CE2')tt$`Pr(>F)`[2] else tt$`Pr(>Chi)`[2],OR_per10=exp(coef(m)[2]))
   gr<-data.frame(s=seq(0,max(z$s),length.out=151));pp<-predict(m,gr,type='link',se.fit=TRUE)
-  # The current manuscript uses normal link-scale 95% limits for all three.
   preds[[g]]<-data.frame(CE=g,PSU=gr$s*10,fit=plogis(pp$fit),lower=plogis(pp$fit-1.96*pp$se.fit),upper=plogis(pp$fit+1.96*pp$se.fit));mods[[g]]<-m
  }
  occurrence_tests<-do.call(rbind,tests);occurrence_tests$p_Holm<-p.adjust(occurrence_tests$p,'holm');pd<-do.call(rbind,preds)
  write_out(occurrence_tests,'occurrence_tests.csv');write_out(pd,'occurrence_predictions.csv');saveRDS(mods,file.path(cache,'occurrence_models.rds'))
- # Raw XLSX cells: explicitly labelled Date of Plate/Date_Plate only. 'Picked'
- # dates are not substituted. Missing day-zero origins retain the original proxy.
  parse_date<-function(v){
   if(is.na(v)||!nzchar(v)||v=='NA')return(as.Date(NA));n<-num(v)
   if(is.finite(n)&&n>40000&&n<50000)return(as.Date(n,origin='1899-12-30'))
@@ -68,7 +64,6 @@ run_cultivation <- function(project_root, bootstrap_iterations=1000L) {
  generations$exclusion<-ifelse(generations$date_conflict,'conflicting plate dates',ifelse(generations$offspring_recorded==1 & generations$time<=0,'no documented start before offspring',''))
  write_out(generations,'generation_timing_audit.csv')
  d<-subset(generations,offspring_recorded==1 & exclusion=='');stopifnot(nrow(d)==611)
- # Enforce exactly the original analysis order (numeric replicate, lexical F-label).
  d<-d[order(d$Experiment_id,d$Strain,d$Salinity_PSU,d$Replicate,d$Generation),]
  d$source_line_id<-d$analysis_line_id;d$analysis_line_id<-paste(d$Experiment_id,d$Strain,d$Salinity_PSU,floor(d$Replicate),sep='|')
  d$MAL<-factor(d$Experiment_id,levels=c('MAL1','MAL2','MAL3'));d$s<-d$Salinity_PSU/10;d$s2<-d$s^2;write_out(d,'analysis_data.csv')
@@ -104,7 +99,6 @@ render_cultivation_figure<-function(project_root,t,a,pd,d,crypto,effects){
  cols<-c(CE1='#4477AA',CE2='#228B75',CE3='#C47732');labels<-c('CE1','CE2','CE3')
  annotations<-data.frame(CE=c('CE1','CE2','CE3'),x=34.6,y=c(74,69,64));annotations$percent<-round(100*(effects$ratio_per10[match(annotations$CE,effects$CE)]-1));annotations$label<-sprintf('%s: +%d%% per +10 PSU',annotations$CE,annotations$percent)
  aplot<-ggplot()+geom_ribbon(data=pd,aes(PSU,ymin=100*lower,ymax=100*upper,fill=CE),alpha=.08,show.legend=FALSE)+geom_ribbon(data=a,aes(Salinity_PSU,ymin=lower_95,ymax=upper_95,fill=CE),alpha=.2,show.legend=FALSE)+geom_point(data=t,aes(Salinity_PSU,time,colour=CE),position=position_jitter(width=.3,height=0,seed=17),size=1.15,alpha=.26,show.legend=FALSE)+geom_line(data=a,aes(Salinity_PSU,median_days,colour=CE,linetype='Time to first offspring'),linewidth=1.1,show.legend=FALSE)+geom_line(data=pd,aes(PSU,100*fit,colour=CE,linetype='Offspring occurrence'),linewidth=1,show.legend=FALSE)+geom_point(data=d,aes(PSU,100*proportion,colour=CE),shape=21,fill='white',size=3,stroke=1,show.legend=FALSE)+geom_text(data=annotations,aes(x=x,y=y,label=label,colour=CE),hjust=1,size=3.5,fontface='plain',show.legend=FALSE)+geom_point(data=data.frame(CE=c('CE1','CE2','CE3'),x=NA_real_,y=NA_real_),aes(x,y,colour=CE),shape=21,fill='white',size=3,stroke=1,na.rm=TRUE,show.legend=TRUE)+geom_line(data=data.frame(x=NA_real_,y=NA_real_,kind=c('Time to first offspring','Offspring occurrence')),aes(x,y,linetype=kind),colour='black',linewidth=.9,na.rm=TRUE,show.legend=TRUE)+scale_colour_manual(values=cols,labels=labels)+scale_fill_manual(values=cols,guide='none')+scale_linetype_manual(values=c('Time to first offspring'='solid','Offspring occurrence'='22'))+scale_y_continuous(name='Offspring occurrence (%)',limits=c(0,100),breaks=seq(0,100,20),sec.axis=sec_axis(~.,name='Time to first offspring (days)',breaks=seq(0,100,20)))+scale_x_continuous(limits=c(-.4,35.4),breaks=seq(0,35,5),expand=expansion(mult=0))+labs(x='Salinity (PSU)',colour=NULL,linetype=NULL,tag='A')+guides(colour=guide_legend(order=1,nrow=1,byrow=TRUE,override.aes=list(shape=21,fill='white',size=3,linetype=0)),linetype=guide_legend(order=2,override.aes=list(colour='black',linewidth=1,shape=NA)))+theme_bw(base_size=12)+theme(panel.grid.minor=element_blank(),panel.grid.major.x=element_blank(),legend.position='bottom',legend.box='vertical',plot.title=element_text(face='bold'),plot.caption=element_text(hjust=0,size=9),legend.key.width=grid::unit(.45,'cm'),legend.key.height=grid::unit(.55,'cm'),legend.spacing.y=grid::unit(.12,'cm'),legend.margin=margin(5,2,2,2),axis.text.x=element_text(size=11,colour='black'),axis.ticks.x=element_line(colour='black',linewidth=.7),axis.ticks.length=grid::unit(2.5,'mm'),axis.text.y=element_text(size=11,colour='black'),axis.title.y=element_text(size=14,face='plain'),axis.title.y.right=element_text(size=14,face='plain'),plot.tag=element_text(face='bold',size=18),legend.text=ggtext::element_markdown(size=11,lineheight=1.1,margin=margin(l=1)),legend.spacing.x=grid::unit(2,'mm'),plot.margin=margin(12,14,8,12))
- # Explain line types in a compact, right-aligned inset with adjacent keys.
  key_labels <- c('Time to first offspring', 'Offspring occurrence')
  key_y <- c(.72, .28)
  key_grobs <- lapply(seq_along(key_labels), function(i) {
@@ -122,13 +116,11 @@ render_cultivation_figure<-function(project_root,t,a,pd,d,crypto,effects){
  aplot <- aplot + guides(linetype='none') + theme(axis.title.x=element_text(size=14,face='plain',margin=margin(t=5))) +
   inset_element(line_key, left=.58, bottom=.81, right=(34.6+.4)/35.8, top=.94, align_to='panel')
  bplot<-ggplot(crypto,aes(PSU,cryptobiosis_percent,colour=CE,group=CE))+geom_errorbar(aes(ymin=lower,ymax=upper),width=.35,linewidth=.75,position=position_dodge(width=.65))+geom_point(shape=21,fill='white',stroke=1.1,size=3.4,position=position_dodge(width=.65))+scale_colour_manual(values=cols,labels=labels)+scale_x_continuous(limits=c(-.4,35.4),breaks=seq(0,35,5),expand=expansion(mult=0))+scale_y_continuous(limits=c(0,40),breaks=seq(0,40,10),expand=expansion(mult=c(.02,.04)))+labs(x='Salinity (PSU)',y='Lineages with\ncryptobiosis (%)',colour=NULL,tag='B')+guides(colour='none')+theme_bw(base_size=16)+theme(panel.grid.minor=element_blank(),panel.grid.major.x=element_blank(),plot.tag=element_text(face='bold',size=18),axis.title=element_text(size=14,face='plain'),axis.title.x=element_text(margin=margin(t=5)),axis.text=element_text(size=11,colour='black'),axis.ticks.length=grid::unit(2.5,'mm'),axis.ticks=element_line(linewidth=.7),plot.margin=margin(10,14,8,12))
- # Centre axis titles on their panels and keep a consistent compact gap.
  aplot<-aplot & theme(axis.title.x=element_text(size=14,face='plain',hjust=.5,margin=margin(t=5)),axis.title.y=element_text(size=14,face='plain',hjust=.5,vjust=1,margin=margin(r=6)),axis.title.y.right=element_text(size=14,face='plain',hjust=.5,margin=margin(l=6)),axis.text.y.left=element_text(margin=margin(r=2.2)),axis.text.y.right=element_text(margin=margin(l=2.2)))
  bplot<-bplot+theme(axis.title.x=element_text(size=14,face='plain',hjust=.5,margin=margin(t=5)),axis.title.y=element_text(size=14,face='plain',hjust=.5,margin=margin(r=6)))
  fig<-(aplot/bplot)+plot_layout(heights=c(2,1),guides='collect') & theme(legend.position='bottom',legend.box='vertical')
  out<-file.path(project_root,'Manuscript/figures');dir.create(out,recursive=TRUE,showWarnings=FALSE)
  figure_temp<-file.path(project_root,'.tmp','Figure_3_cultivation_render.png')
- # Shift only panel A's left title towards its panel; panel B reserves a wider title column.
  figure_grob<-patchwork::patchworkGrob(fig)
  shift_left_title<-function(g){
   if(inherits(g,'gtable')){
