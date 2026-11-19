@@ -1,6 +1,5 @@
-# Reproducible desiccation analysis (D1 D1, D2 D2); D3 excluded from the current manuscript.
-# Raw observations preserved byte-identically; historical codes are internal model IDs.
-# Bootstrap and original random seed retained for manuscript figure parity.
+# Desiccation analysis
+
 run_desiccation <- function(project_root) {
 suppressPackageStartupMessages({library(readxl);library(dplyr);library(tidyr);library(ggplot2);library(patchwork);library(ggtext);library(glmmTMB);library(emmeans)})
 options(stringsAsFactors=FALSE,scipen=999)
@@ -28,7 +27,6 @@ wilson <- function(x, n) {
 }
 
 summarise_recovery <- function(x) {
-  # Preserve the original bootstrap group order with neutral experiment labels.
   x$experiment <- factor(x$experiment, levels = c("D2", "D1"))
   ans <- x |>
     group_by(experiment, strain, group) |>
@@ -44,9 +42,6 @@ summarise_recovery <- function(x) {
   boot <- x |>
     group_by(experiment, strain, group) |>
     group_modify(~{
-      # The historical group order inserted six D3 groups (five plates each)
-      # between D2 and D1. Advance RNG only, without reading D3 data,
-      # to retain the accepted D1 bootstrap intervals after D3 removal.
       if (as.character(.y$experiment) == "D1" && !historical_rng_gap_consumed) {
         for (j in seq_len(6L)) replicate(20000L, sample.int(5L, 5L, replace=TRUE))
         historical_rng_gap_consumed <<- TRUE
@@ -60,7 +55,6 @@ summarise_recovery <- function(x) {
   left_join(ans, boot, by = c("experiment", "strain", "group"))
 }
 
-# D1: five replicate plates per strain and group; no preconditioning.
 D10 <- read_excel(file.path(raw, "D1", "D1_survival.xlsx"), sheet = "Nematoden Daten")
 D1 <- transmute(
   D10,
@@ -75,7 +69,6 @@ D1$strain <- recode(D1$strain, `TDT.23.02` = "TDT.23.02", `TDT.23.16` = "TDT.23.
                       `PAP.22.29` = "PAP.22.29", `PWB.22.01` = "PWB.22.01",
                       `GBG22.06` = "GBG.22.06")
 
-# D2: same drying/rehydration protocol in both groups; only 96 h preconditioning differs.
 D20 <- read.csv(file.path(project_root, "Results/inputs/D2_survival.csv"), check.names = FALSE)
 shuimeiren_technical <- read.csv(
   file.path(project_root, "Results/inputs/D2_technical_counts.csv"),
@@ -85,9 +78,6 @@ shuimeiren_technical <- read.csv(
     Strain, Species, reproduction,
     `Sampling location` = Sampling_location,
     Treatment, Replicate,
-    # TR1--TR3 are repeated counts from the same biological plate, not
-    # independent animals. Retain one observation per plate and represent the
-    # mean of the three 100-animal counts on its original denominator.
     Alive = Alive_mean_per_100,
     Total = 100,
     Dead = 100 - Alive_mean_per_100,
@@ -106,12 +96,10 @@ D2 <- transmute(
   note = "48 h desiccation and 24 h rehydration; groups differ only in 96 h preconditioning"
 )
 
-# D3 raw files remain preserved but are not read by this analysis.
 all_data <- bind_rows(D1, D2)
 stopifnot(all(all_data$recovered >= 0), all(all_data$initial > 0),
           all(all_data$recovered + all_data$failure + all_data$missing == all_data$initial))
 
-# Analysis metadata for the two desiccation protocols in the manuscript.
 all_data <- all_data |>
   mutate(
     species = case_when(
@@ -159,8 +147,6 @@ write.csv(summary, file.path(tables, "survival_descriptive_bootstrap.csv"), row.
 
 d_all <- all_data |>
   mutate(
-    # Historical model input rounded technical-repeat means to integer counts.
-    # Preserve that model convention separately from unrounded descriptive data.
     survived = round(survived),
     recovered = round(recovered),
     failure = initial - recovered,
@@ -175,9 +161,6 @@ d_all <- all_data |>
     atacama_origin = relevel(factor(atacama_origin), "Non-Atacama")
   )
 
-# The inferential endpoint is survival after desiccation and rehydration.
-# Non-desiccated controls remain relevant descriptively but are not observations
-# of this endpoint and therefore are not included in the joint GLMM.
 d <- d_all |>
   filter(desiccated == "1") |>
   droplevels()
@@ -192,12 +175,8 @@ stopifnot(
 form_full <- cbind(survived, non_survived) ~
   experiment + preconditioned + atacama_origin + (1 | strain)
 
-# The beta-binomial family is the primary model because plate-level survival
-# is overdispersed relative to an ordinary binomial model.
 fit <- glmmTMB(form_full, data = d, family = betabinomial(link = "logit"))
 
-# Nested models are inferential checks for prespecified terms, not separate
-# analyses of the three experiments.
 fit_no_origin <- update(fit, . ~ . - atacama_origin)
 fit_no_preconditioning <- update(fit, . ~ . - preconditioned)
 fit_no_experiment <- update(fit, . ~ . - experiment)
@@ -243,8 +222,6 @@ variance_table <- data.frame(
   standard_deviation = attr(vc, "stddev")[[1]]
 )
 
-# Model-based survival by preconditioning status within the experiment in
-# which both levels were directly observed (D2).
 emm <- emmeans(fit, ~ preconditioned | experiment, type = "response")
 estimated_survival <- as.data.frame(emm) |>
   filter(experiment == "D2")
@@ -266,10 +243,8 @@ cat('DIRECT EXPERIMENT\n');print(with(k,table(strain,preconditioned)))
 write.csv(k,file.path(out,'D2_analysis_data.csv'),row.names=FALSE)
 mm<-model.matrix(~experiment+preconditioned+atacama_origin,d)
 cat('DESIGN RANK',qr(mm)$rank,'/',ncol(mm),'\n')
-# Direct within-protocol comparison, preserving random strain effect of old model.
 m<-glmmTMB(cbind(survived,non_survived)~preconditioned+(1|strain),data=k,family=betabinomial())
 m0<-update(m,.~.-preconditioned)
-# Fixed-strain sensitivity and omnibus strain test; no boundary variance test.
 f<-glmmTMB(cbind(survived,non_survived)~preconditioned+strain,data=k,family=betabinomial())
 f0<-update(f,.~.-preconditioned)
 fs0<-update(f,.~.-strain)
@@ -289,13 +264,11 @@ r<-subset(d,experiment=='D1');r$strain<-factor(r$strain);r$proportion<-r$survive
 keep<-c('860.22.04','DF5050','ES5','PAP.22.29')
 x<-droplevels(subset(r,strain %in% keep))
 stopifnot(nrow(r)==40,nrow(x)==20,all(table(r$strain)==5))
-# Omnibus comparison: all eight strains, complete plate-level permutation.
 stat<-function(y,g){n<-length(y);k<-nlevels(g);mu<-mean(y);means<-tapply(y,g,mean);nn<-table(g);ssb<-sum(nn*(means-mu)^2);ssw<-sum((y-means[g])^2);(ssb/(k-1))/(ssw/(n-k))}
 set.seed(1211);observed<-stat(r$proportion,r$strain)
 b<-9999L;sim<-replicate(b,stat(sample(r$proportion),r$strain))
 global<-data.frame(test='All8 strains: plate-level omnibus permutation F',F=observed,permutations=b,p=(1+sum(sim>=observed-1e-12))/(b+1))
 write.csv(global,file.path(out,'experiment1_all8_global.csv'),row.names=FALSE)
-# Direct post-desiccation survival comparisons, not control-normalized effects.
 m<-glmmTMB(cbind(survived,non_survived)~strain,data=x,family=betabinomial())
 m0<-update(m,.~1)
 stopifnot(m$fit$convergence==0,isTRUE(m$sdr$pdHess),m0$fit$convergence==0,isTRUE(m0$sdr$pdHess))
@@ -319,7 +292,6 @@ b$odds_ratio <- exp(b$estimate)
 b$OR_lower_unadjusted95 <- exp(b$asymp.LCL)
 b$OR_upper_unadjusted95 <- exp(b$asymp.UCL)
 write.csv(b,file.path(tables,"D2_between_strain_pairs.csv"),row.names=FALSE)
-# Consolidated S8: current experiment numbers and current strain identifiers.
 a <- c
 split_pair <- function(x) {
  z <- strsplit(as.character(x)," - ",fixed=TRUE)
@@ -337,7 +309,6 @@ stopifnot(nrow(pair_table)==48L,sum(pair_table$p_Holm<.05 & pair_table$experimen
 
 render_desiccation_figure(project_root, all_data, summary)
 
-# Residual checks are diagnostics, not manuscript hypothesis tests.
 if(requireNamespace("DHARMa",quietly=TRUE)) {
  set.seed(1211)
  diagnostics <- do.call(rbind,lapply(list(joint=fit,D2_random=fits$direct_random,D2_interaction=fits$strain_interaction),function(model){
@@ -349,7 +320,6 @@ if(requireNamespace("DHARMa",quietly=TRUE)) {
 invisible(list(joint=fit,D2=fits,pairwise=pair_table,summary=summary))
 }
 
-# Render only, without refitting models or changing numerical outputs.
 render_desiccation_figure <- function(project_root, all_data, summary) {
  suppressPackageStartupMessages({library(dplyr);library(ggplot2);library(patchwork);library(ggtext)})
  sys.source(file.path(project_root,'R/01_figure_style.R'),envir=environment())
@@ -373,9 +343,6 @@ species_labels <- c(
   "LAG.22.03" = "<b><i>P. pavus</i></b><br>(WWL505)"
 )
 
-# Preserve manuscript plotting dataset: historical figure omits the six D2
-# WWL115 plate-level markers although its means/CI and all models include them.
-# Keep explicit for byte/pixel parity; see Documentation/desiccation_provenance.md.
 publication_data <- all_data |>
   filter(!(experiment == "D2" & strain == "860.22.04")) |>
   mutate(treatment = case_when(
