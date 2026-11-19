@@ -1,5 +1,7 @@
 # Entry point. Run from any working directory: Rscript R/00_run_all.R
+# This will reproduce the all analyses.
 # No package installation, downloads or files outside the project are requested.
+
 run_all <- function(project_root, modules=c('salinity','cultivation','desiccation','supplement_figures'), bootstrap_mode='bootstrap_reference_replay', cultivation_bootstraps=1000L) {
  root<-normalizePath(project_root,winslash='/',mustWork=TRUE)
  old_wd<-getwd();setwd(root);on.exit(setwd(old_wd),add=TRUE)
