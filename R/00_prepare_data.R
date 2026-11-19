@@ -195,35 +195,13 @@ run_prepare_data <- function(project_root) {
   }))
   save_table(recovery, 'recovery_observations.csv')
 
-  # Daily logs: CE2 updates matching rows and adds new lineages. CE3 uses
-  # the original left joins, including duplicated keys and source conflicts.
+  # Each DailyLog contains all recorded observation days for its experiment.
   cultivation <- list()
-  keys <- c('Treatment(PSU)', 'Replicate', 'Generation')
   for (ce in 1:3) {
     directory <- file.path(root, 'Data/raw/cultivation', paste0('CE', ce))
     path <- list.files(directory, pattern = 'DailyLog.csv$', full.names = TRUE)
     stopifnot(length(path) == 1L)
     wide <- read_source_csv(path)
-    extras <- sort(list.files(directory, pattern = '_t[0-9]+.csv$', full.names = TRUE))
-    if (ce == 2L) {
-      for (extra in extras) {
-        z <- read_source_csv(extra)
-        make_key <- function(d) do.call(paste, c(d[keys], sep = '|'))
-        idx <- match(make_key(z), make_key(wide))
-        missing <- is.na(idx)
-        if (any(missing)) {
-          wide <- bind_rows(wide, z[missing, keys, drop = FALSE])
-          idx <- match(make_key(z), make_key(wide))
-        }
-        for (j in seq_len(nrow(z))) {
-          matches <- which(make_key(wide) == make_key(z[j, , drop = FALSE]))
-          for (nm in setdiff(names(z), keys)) wide[matches, nm] <- z[[nm]][j]
-        }
-      }
-    }
-    if (ce == 3L) for (extra in extras) {
-      wide <- left_join(wide, read_source_csv(extra), by = keys, relationship = 'many-to-many')
-    }
     long <- pivot_longer(wide, matches('^t[0-9]+$'), names_to = 'Observation_day_raw', values_to = 'Status_raw', cols_vary = 'slowest')
     long <- long[!is.na(long$Status_raw) & nzchar(trimws(long$Status_raw)), ]
     long$Status_raw <- trimws(long$Status_raw)

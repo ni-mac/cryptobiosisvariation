@@ -23,7 +23,7 @@ Running the scripts creates `Results/` for model results and tables, `Manuscript
 
 Salinity files are organized by strain (`WWL002`, `WWL709`, `WWL726`, `A_maximus`, and `ES5`). The `series2023` folder contains a shared experiment with several strains.
 
-- `Data/raw/` contains the experimental source files, grouped by experiment. The salinity workbooks contain the supplied adjusted observation sheets used for the analyses.
+- `Data/raw/` contains the experimental source files, grouped by experiment. The salinity workbooks contain the supplied adjusted observation sheets used for the analyses. The CE2 and CE3 DailyLogs combine the original logs and the later observation files.
 - `R/00_prepare_data.R` rebuilds the five required analysis tables from these sources. The start script runs this step automatically and saves the tables in `Results/inputs/`.
 - `Data/strain_names.csv` maps historical strain identifiers to the manuscript names.
 - Reported EC50 confidence intervals are reproduced from the 2,000 saved bootstrap results in `Data/reference/recorded_ec50_bootstrap_draws.csv`, but can also be generated from the code. 
