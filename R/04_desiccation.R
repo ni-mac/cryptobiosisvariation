@@ -61,7 +61,7 @@ summarise_recovery <- function(x) {
 }
 
 # D1: five replicate plates per strain and group; no preconditioning.
-D10 <- read_excel(file.path(raw, "D1", "D1_anhydrobiosis.xlsx"), sheet = "Nematoden Daten")
+D10 <- read_excel(file.path(raw, "D1", "D1_survival.xlsx"), sheet = "Nematoden Daten")
 D1 <- transmute(
   D10,
   experiment = "D1", strain = gsub(" ", ".", trimws(Strain), fixed = TRUE),

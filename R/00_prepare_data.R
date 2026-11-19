@@ -52,13 +52,13 @@ run_prepare_data <- function(project_root) {
   # Adjusted observation sheets also retain the counts before M9 recovery.
   source_dir <- file.path(root, 'Data/raw/salinity')
   specs <- list(
-    list('A_maximus/Salinity_experiment_Amax_22°C_all_data.xlsx', 'Amax_22°C_adujsted_final',
+    list('A_maximus/A_maximus_salinity_22C.xlsx', 'Amax_22°C_adujsted_final',
          'A.max_22C', 'A. max', 'Acrobeloides maximus', 'Senegal', 22, 20),
-    list('WWL709/Salinity_experiment_PAP22.17.xlsx', 'PAP22.17_16°C_adjusted',
+    list('WWL709/WWL709_salinity_16C.xlsx', 'PAP22.17_16°C_adjusted',
          'PAP.22.17_16C', 'PAP.22.17', 'Acrobeloides tricornis', 'Chile, Paposo', 16, 20),
-    list('WWL002/salinity_experiment_ALT22.08_22°C_16°C_all_data.xlsx', 'ALT22.08_16°C_adjusted',
+    list('WWL002/WWL002_salinity_16_22C.xlsx', 'ALT22.08_16°C_adjusted',
          'ALT.22.08_16C', 'ALT.22.08', 'Panagrolaimus sp.', 'Chile, Altiplano', 16, 30),
-    list('WWL002/salinity_experiment_ALT22.08_22°C_16°C_all_data.xlsx', 'ALT22.08_22°C_adjusted ',
+    list('WWL002/WWL002_salinity_16_22C.xlsx', 'ALT22.08_22°C_adjusted ',
          'ALT.22.08_22C', 'ALT.22.08', 'Panagrolaimus sp.', 'Chile, Altiplano', 22, 30)
   )
   recovery <- list()
@@ -94,7 +94,7 @@ run_prepare_data <- function(project_root) {
   }
 
   # ES5 at 22 C uses its corrected summary and three replicates per dose/day.
-  path <- file.path(root, 'Data/raw/salinity/ES5/Summary_SalExp_ES5_corr_R2.csv')
+  path <- file.path(root, 'Data/raw/salinity/ES5/ES5_salinity_22C.csv')
   x <- read_source_csv(path)
   y <- salinity_table(x, 'ES5_22C', 'ES5', 'Panagrolaimus einhardi', 'sexual',
                       'Bornheim, Bonn, Germany', 22, path, 'CSV', 'salinity_recovery')
@@ -106,13 +106,13 @@ run_prepare_data <- function(project_root) {
   salinity[['ES5_22C']] <- y
 
   summaries <- list(
-    list('WWL709/Summary_SalExp_PAP.22.17_Acro_R1.csv', 'PAP.22.17_salinity_R1',
+    list('WWL709/WWL709_salinity_22C_R1.csv', 'PAP.22.17_salinity_R1',
          'PAP.22.17', 'Acrobeloides tricornis', 'parthenogenetic', 'Chile, Paposo', 22),
-    list('WWL709/Summary_SalExp_PAP.22.17_Acro_R2_corr.csv', 'PAP.22.17_salinity_R2',
+    list('WWL709/WWL709_salinity_22C_R2.csv', 'PAP.22.17_salinity_R2',
          'PAP.22.17', 'Acrobeloides tricornis', 'parthenogenetic', 'Chile, Paposo', 22),
-    list('WWL726/Summary_SalExp_ARO.22.05_Plectus_R1_corr.csv', 'ARO.22.05_salinity_R1',
+    list('WWL726/WWL726_salinity_22C.csv', 'ARO.22.05_salinity_R1',
          'ARO.22.05', 'Acrobeloides goughiensis', 'asexual', 'Atacama Desert, Chile', 22),
-    list('ES5/Summary_SalExp_ES5_corr_R1.csv', 'ES5_salinity_R1',
+    list('ES5/ES5_salinity_16C.csv', 'ES5_salinity_R1',
          'ES5', 'Panagrolaimus einhardi', 'sexual', 'Bornheim, Bonn, Germany', 16)
   )
   for (spec in summaries) {
@@ -141,7 +141,7 @@ run_prepare_data <- function(project_root) {
 
   # The 2023 source counts juveniles separately. Reconstruct the 20-adult
   # cohort only where Adult + Dead + Dormant supports that denominator.
-  path <- file.path(root, 'Data/raw/salinity/series2023/Salinity Treatments_ALT_LAG_AMAX.xlsx')
+  path <- file.path(root, 'Data/raw/salinity/series2023/WWL002_WWL505_Amax_salinity_22C.xlsx')
   x <- as.data.frame(read_excel(path, sheet = 'ALT_LAG'))
   metadata <- list(
     ALT = c('ALT.22.08', 'Panagrolaimus sp.', 'parthenogenetic', 'Altiplano, Chile'),
@@ -219,7 +219,7 @@ run_prepare_data <- function(project_root) {
   save_table(bind_rows(cultivation), 'cultivation_observations.csv')
 
   # D2: read six complete strains from the original survival worksheet.
-  path <- file.path(root, 'Data/raw/desiccation/D2/D2_Nematodes_survival_numbers_2026-09-28.xlsx')
+  path <- file.path(root, 'Data/raw/desiccation/D2/D2_survival.xlsx')
   cells <- read_excel(path, sheet = 'survival_numbers', col_names = FALSE,
                       col_types = 'text', .name_repair = 'minimal')
   strain_metadata <- list(
@@ -261,7 +261,7 @@ run_prepare_data <- function(project_root) {
   stopifnot(!anyDuplicated(d2[c('Strain', 'Treatment', 'Replicate')]),
             all(table(d2$Treatment) == 18L))
   save_table(d2, 'D2_survival.csv')
-  path <- file.path(root, 'Data/raw/desiccation/D2/D2_P_shuimeiren_technical_counts_2026-09-30.csv')
+  path <- file.path(root, 'Data/raw/desiccation/D2/D2_WWL115_technical_counts.csv')
   technical <- read.csv(path, check.names = FALSE)
   # TR1--TR3 are repeated counts of the same 100-animal biological plate.
   stopifnot(nrow(technical) == 6L, all(technical[c('TR1', 'TR2', 'TR3')] >= 0),
