@@ -1,5 +1,6 @@
 # Rebuild the analysis tables from the experimental source files.
-# Outputs are the five CSV tables required by the analysis modules.
+# Outputs are five CSV tables, that are required for downstream analysis.
+
 run_prepare_data <- function(project_root) {
   suppressPackageStartupMessages({
     library(readxl)
@@ -24,7 +25,6 @@ run_prepare_data <- function(project_root) {
   }
   source_path <- function(path) substring(path, nchar(root) + 2L)
 
-  # Standardize only the salinity columns needed by the analysis and audit.
   salinity_table <- function(x, experiment, strain, species, reproduction,
                              origin, temperature, source, sheet, source_group) {
     data.frame(
@@ -49,7 +49,6 @@ run_prepare_data <- function(project_root) {
     )
   }
 
-  # Adjusted observation sheets also retain the counts before M9 recovery.
   source_dir <- file.path(root, 'Data/raw/salinity')
   specs <- list(
     list('A_maximus/A_maximus_salinity_22C.xlsx', 'Amax_22°C_adujsted_final',
@@ -93,7 +92,6 @@ run_prepare_data <- function(project_root) {
     salinity[[spec[[3]]]] <- y
   }
 
-  # ES5 at 22 C uses its corrected summary and three replicates per dose/day.
   path <- file.path(root, 'Data/raw/salinity/ES5/ES5_salinity_22C.csv')
   x <- read_source_csv(path)
   y <- salinity_table(x, 'ES5_22C', 'ES5', 'Panagrolaimus einhardi', 'sexual',
@@ -139,8 +137,6 @@ run_prepare_data <- function(project_root) {
     salinity[[spec[[2]]]] <- y
   }
 
-  # The 2023 source counts juveniles separately. Reconstruct the 20-adult
-  # cohort only where Adult + Dead + Dormant supports that denominator.
   path <- file.path(root, 'Data/raw/salinity/series2023/WWL002_WWL505_Amax_salinity_22C.xlsx')
   x <- as.data.frame(read_excel(path, sheet = 'ALT_LAG'))
   metadata <- list(
@@ -162,8 +158,6 @@ run_prepare_data <- function(project_root) {
     reconstruct[is.na(reconstruct)] <- FALSE
     y$Alive <- ifelse(reconstruct, adult + dormant, alive + dormant)
     y$Total <- ifelse(reconstruct, 20, original_total)
-    # One source plate has irreconcilable cohort counts. Preserve the source
-    # workbook and mark its analysis counts missing, as in the reviewed input.
     invalid <- is.na(y$Total) | y$Total != 20
     y$Alive[invalid] <- NA_real_
     y$Dead[invalid] <- NA_real_
@@ -179,7 +173,6 @@ run_prepare_data <- function(project_root) {
   core <- bind_rows(salinity)
   core$Count_consistency_QC <- ifelse(core$Alive + core$Dead == core$Total, 'OK', 'mismatch')
   save_table(core, 'salinity_observations.csv')
-  # Recovery needs the source counts, labels and original replicate numbers.
   recovery <- bind_rows(lapply(recovery, function(x) {
     data.frame(
       Experiment_id = x$Experiment_id, Strain_standardized = x$Strain_standardized,
@@ -218,7 +211,6 @@ run_prepare_data <- function(project_root) {
   }
   save_table(bind_rows(cultivation), 'cultivation_observations.csv')
 
-  # D2: read six complete strains from the original survival worksheet.
   path <- file.path(root, 'Data/raw/desiccation/D2/D2_survival.xlsx')
   cells <- read_excel(path, sheet = 'survival_numbers', col_names = FALSE,
                       col_types = 'text', .name_repair = 'minimal')
@@ -263,13 +255,11 @@ run_prepare_data <- function(project_root) {
   save_table(d2, 'D2_survival.csv')
   path <- file.path(root, 'Data/raw/desiccation/D2/D2_WWL115_technical_counts.csv')
   technical <- read.csv(path, check.names = FALSE)
-  # TR1--TR3 are repeated counts of the same 100-animal biological plate.
   stopifnot(nrow(technical) == 6L, all(technical[c('TR1', 'TR2', 'TR3')] >= 0),
             all(technical[c('TR1', 'TR2', 'TR3')] <= 100))
   technical$Alive_sum <- rowSums(technical[c('TR1', 'TR2', 'TR3')])
   technical$Total_counted <- 300
   technical$Dead_sum <- 300 - technical$Alive_sum
-  # The original technical-count table records these means to ten decimals.
   technical$Alive_mean_per_100 <- round(technical$Alive_sum / 3, 10)
   technical$Survival_percent <- technical$Alive_mean_per_100
   save_table(technical, 'D2_technical_counts.csv')
