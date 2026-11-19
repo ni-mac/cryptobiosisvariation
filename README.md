@@ -21,7 +21,7 @@ Running the scripts creates `Results/` for model results and tables, `Manuscript
 
 ## Data sources
 
-- `Data/raw/` contains the experimental source files, grouped by experiment.
+- `Data/raw/` contains the experimental source files, grouped by experiment. The salinity workbooks contain the supplied adjusted observation sheets used for the analyses.
 - `R/00_prepare_data.R` rebuilds the five required analysis tables from these sources. The start script runs this step automatically and saves the tables in `Results/inputs/`.
 - `Data/strain_names.csv` maps historical strain identifiers to the manuscript names.
 - Reported EC50 confidence intervals are reproduced from the 2,000 saved bootstrap results in `Data/reference/recorded_ec50_bootstrap_draws.csv`, but can also be generated from the code. 
