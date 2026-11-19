@@ -1,8 +1,5 @@
-# Salinity analyses for the current manuscript. Sources and curation are documented
-# in README.md. No files outside project_root are written.
-# bootstrap_reference_replay uses the recorded 2000 fitted cluster-bootstrap draws.
-# fresh_bootstrap uses deterministic replicate-specific seeds; it is not expected
-# to duplicate the historical load-balanced RNG schedule.
+# Salinity analyses for the manuscript. 
+
 run_salinity <- function(project_root,
                          bootstrap_mode = c("bootstrap_reference_replay", "fresh_bootstrap"),
                          n_boot = 2000L, render_figures = TRUE) {
@@ -85,8 +82,7 @@ if (any(is.na(sal$rehydration_group))) stop("Protocol mapping produced missing v
 
 for (nm in numeric_cols) sal[[nm]] <- suppressWarnings(as.numeric(sal[[nm]]))
 
-# User confirmed 8 Nov 2026: the cool ES5 experiment was conducted at 16 C.
-# Correct the historical source label when importing; original workbooks remain preserved.
+# Standardize the ES5 treatment to 16°C
 sal$Temperature_treatment[sal$Experiment_id == "ES5_salinity_R1"] <- 16
 
 
